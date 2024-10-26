@@ -1,0 +1,37 @@
+[build-system]
+requires = [
+    "setuptools",
+    "setuptools-git-versioning"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools-git-versioning]
+enabled = true
+dev_template = "{tag}"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+[project]
+name = "treerun"
+dynamic = ["version"]
+authors = [
+  { name="Viktor Svahn", email="svahnv@gmail.com" },
+]
+description = "CLI for running teriminal commands from all subdirectories in a tree structure."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Ubuntu",
+]
+
+[project.urls]
+Homepage = "https://github.com/viktorsvahn/treerun/"
+Issues = "https://github.com/viktorsvahn/treerun/issues"
+
+
+[project.scripts]
+treerun = "treerun.__main__.py"
