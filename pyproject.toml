@@ -9,8 +9,8 @@ build-backend = "setuptools.build_meta"
 enabled = true
 dev_template = "{tag}"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+#[tool.setuptools.packages.find]
+#where = ["src"]
 
 
 [project]
@@ -34,4 +34,4 @@ Issues = "https://github.com/viktorsvahn/treerun/issues"
 
 
 [project.scripts]
-treerun = "treerun.__main__.py"
+treerun = "treerun.main:main"

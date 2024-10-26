@@ -14,17 +14,18 @@ import itertools
 import functools
 import collections
 
-
 # Add argparse command to ignore keywords, such as for example MULTIHEAD
 parser = argparse.ArgumentParser(
     prog='ProgramName',
     description='What the program does',
-    epilog='Text at the bottom of help')
+    epilog='Text at the bottom of help'
+)
 parser.add_argument('-m', '--modifier', type=str)
 parser.add_argument('-c', '--config', default='input.yaml')
 parser.add_argument('-i', '--ignore', nargs='+', default=[])
 parser.add_argument('-l', '--log', default=None)
 args = parser.parse_args()
+
 
 
 def whitespace(strings, tab_width=4, max_length=None):
@@ -188,13 +189,13 @@ def mode_select(dictionary, modifier):
     # Summarise and print selections.
     ## Merge special variables with choices, conditional or non-conditional
     ## Tabulate merged dict
-    header('Summary:')
-    tmp = {
-        'Mode:':selection[0],
-    }
-    if modifier is not None:
-        tmp['Modifier:'] = modifier
-    tabulate(tmp|choices)
+    #header('Summary:')
+    #tmp = {
+    #    'Mode:':selection[0],
+    #}
+    #if modifier is not None:
+    #    tmp['Modifier:'] = modifier
+    #tabulate(tmp|choices)
 
     return selection
 
@@ -218,6 +219,8 @@ def check_files(paths):
     Keyword argument:
       paths:  list of paths
     """
+    cwd = os.getcwd()
+
     # Determine which directories does and does not exist
     is_dir = lambda p: os.path.isdir(p)
     found, not_found = [], []
@@ -256,6 +259,7 @@ def check_files(paths):
 def run(mode, dictionary, modifier, log_file):
     mode, mode_dict = mode
     successful, unsuccessful = [],[]
+    cwd = os.getcwd()
     
     # Convert placeholders to variables
     placeholder_map = dict(
@@ -263,6 +267,17 @@ def run(mode, dictionary, modifier, log_file):
         mode=mode
     )
     mode_dict = convert_placeholders(mode_dict, placeholder_map)
+
+    # Summarise and print selections.
+    ## Merge special variables with choices, conditional or non-conditional
+    ## Tabulate merged dict
+    header('Summary:')
+    tmp = {
+        'Mode:':mode,
+    }
+    if modifier is not None:
+        tmp['Modifier:'] = modifier
+    tabulate(tmp|dictionary)
 
     # Get command
     try:
@@ -336,7 +351,9 @@ def run(mode, dictionary, modifier, log_file):
                 tabulate({p:cmd for p in not_found}, max_length)
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
+def main():
+    
     if args.ignore != []:
         print(f'Ignoring: {args.ignore}')
 
@@ -355,8 +372,13 @@ if __name__ == '__main__':
 
     # Select levels
     choices = level_select(levels, args.ignore)
+    print(choices)
 
     # Select modes and run
     mode = mode_select(modes, args.modifier)
     #quit()
     run(mode, choices, args.modifier, log_file=args.log)
+
+
+if __name__ == '__main__':
+    main()
