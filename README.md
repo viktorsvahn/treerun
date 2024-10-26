@@ -76,7 +76,6 @@ Submitting:
 ————————————————————————————————————————————————————————————————————————————————
 Moving to:    /system1/param11/param21
 Running:      ./run.sh
-Running in:  /home/viktor/Documents/scripts/python/submit/system1/param11/param21
 ```
 which produced the following output to the file 'test.log':
 ```

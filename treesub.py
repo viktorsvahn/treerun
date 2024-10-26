@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(
     prog='ProgramName',
     description='What the program does',
     epilog='Text at the bottom of help')
-parser.add_argument('-m', '--modifier')
+parser.add_argument('-m', '--modifier', type=str)
 parser.add_argument('-c', '--config', default='input.yaml')
 parser.add_argument('-i', '--ignore', nargs='+', default=[])
 parser.add_argument('-l', '--log', default=None)
@@ -66,9 +66,11 @@ def whitespace(strings, tab_width=4, max_length=None):
     return spaces, longest_string
 
 
-def tabulate(data, max_length=None):
+def tabulate(data, tab_width=None):
+    """Tabulates keys and values of a given dictionary into two columns
+    """
     assert type(data)==dict, ValueError('The \'tabulate\' function takes a dictionary as input.')
-    space, _ = whitespace(data, max_length=max_length)
+    space, _ = whitespace(data, max_length=tab_width)
     for key,val in data.items():
         print(f'{key}{space[key]}{val}')
 
@@ -192,29 +194,43 @@ def mode_select(dictionary, modifier):
         print(f'({i+1}) {key}')
         integer_to_mode_map[i+1] = key,val
     selection = level_cycler('Select an option: ', integer_to_mode_map)
-    #print(selection)
 
-    # Summarise and print selections. Could be prettier...
-    indentation, longest_path_name = whitespace(choices)
+    #indentation, _ = whitespace(choices)
+
+    # Summarise and print selections.
+    ## Merge special variables with choices, conditional or non-conditional
+    ## Tabulate merged dict
     header('Summary:')
     tmp = {
         'Mode:':selection[0],
-        'Modifier:':modifier,
     }
+    if modifier is not None:
+        tmp['Modifier:'] = modifier
     tabulate(tmp|choices)
 
     return selection
 
 
 def get_paths(dictionary):
+    """Returns a list of paths genereted from Cartesian products of the values
+    in a given dictionary.
+
+    Keyword arguments:
+      dictionary: non-nested dictionary will values being of type 'list'
+    """
     prod = itertools.product(*dictionary.values())
     paths = list(map(lambda e: '/'+'/'.join(e), prod))
     return paths
 
 
 def check_files(paths):
-    # Determine which files exist
-    cwd = os.path.dirname(__file__)
+    """Given a list of paths, returns the lists of the paths that does, and
+    does not, exist on the drive.
+
+    Keyword argument:
+      paths:  list of paths
+    """
+    # Determine which directories does and does not exist
     is_dir = lambda p: os.path.isdir(p)
     found, not_found = [], []
     for path in paths:
@@ -225,10 +241,14 @@ def check_files(paths):
 
     # Make sure user wants to continue if missing files
     header(f'Checking directories:')
+
+    ## None of the directories were found: exit
     if len(found) == 0:
         print('Could not locate the relevant directories.')
         print('\nPlease make sure that the appropriate directories exist and that all modifiers\nin the YAML input (if any) have been supplied.')
         quit()
+
+    ## Some directories were not found, still continue?
     elif len(not_found) > 0:
         print('Unable to locate the following directories:')
         for file in not_found:
@@ -236,15 +256,19 @@ def check_files(paths):
         if input('Do you still want to continue (y/[n])? ').lower() not in ['y', 'yes']:
             print('Closing.')
             quit()
+
+    # All directories were found
     elif (len(found) == len(paths)) and (len(not_found) == 0):
-        print('All relevant directories exist. Proceeding with submission attempt.')
+        print('All relevant directories exist.')
+        print('\nProceeding with submission attempt.')
 
     return found, not_found
 
 
 def run(mode, dictionary, modifier, log_file):
-    mode, mode_dict = mode
 
+    mode, mode_dict = mode
+    successful, unsuccessful = [],[]
     
     # Convert placeholders to variables
     placeholder_map = dict(
@@ -252,12 +276,6 @@ def run(mode, dictionary, modifier, log_file):
         mode=mode
     )
     mode_dict = convert_placeholders(mode_dict, placeholder_map)
-    
-    # Path to script
-    cwd = os.path.dirname(__file__)
-
-    # Stores attempts for logging purposes
-    successful, unsuccessful = [],[]
 
     # Get command
     try:
@@ -277,12 +295,8 @@ def run(mode, dictionary, modifier, log_file):
         except:
             run_dir = ''
 
-
-    # Get paths
+    # Get paths and make find out which actually exist
     paths = [f'{p}{run_dir}' for p in get_paths(dictionary)]
-    #sprint(run_dir)
-
-    # Make sure the paths exist, then submit those that do
     found, not_found = check_files(paths)
 
     # Attempt to submit all files that were found
@@ -290,24 +304,24 @@ def run(mode, dictionary, modifier, log_file):
     for path in found:
         # Attempt to run
         try:
-            os.chdir(f'{cwd}/{path}')
+            os.chdir(cwd+path)
             tabulate(
                 {
                     'Moving to:':path,
                     'Running:':cmd,
                 }
             )
-            #print(f'Moved to: {path}')
-            #print(f'Running: {cmd}')
             subprocess.call(cmd, shell=True)
             successful.append(path)
+
+        # Log unsuccessful attempts
         except FileNotFoundError as e:
             print(e)
             print('Proceding to next file.')
             unsuccessful.append(path)
 
     # Lengths of all paths, used for even tabulating
-    lengths = [len(string) for string in found+not_found+unsuccessful]
+    max_length = max([len(string) for string in found+not_found+unsuccessful])
 
     # Logging
     if log_file != None:
@@ -322,27 +336,25 @@ def run(mode, dictionary, modifier, log_file):
             )
             print()
             print('Successfully submitted:')
-            tabulate({p:cmd for p in successful}, max(lengths))
+            tabulate({p:cmd for p in successful}, max_length)
 
             if len(unsuccessful) > 0:
                 print()
                 print('Unsuccessful submissions:')
-                tabulate({p:cmd for p in unsuccessful})
+                tabulate({p:cmd for p in unsuccessful}, max_length)
 
             if len(not_found) > 0:
                 print()
                 print('Not found:')
-                tabulate({p:cmd for p in not_found})
-
-
+                tabulate({p:cmd for p in not_found}, max_length)
 
 
 if __name__ == '__main__':
     if args.ignore != []:
         print(f'Ignoring: {args.ignore}')
 
-    # Path to this script
-    cwd = os.path.dirname(__file__)
+    # Current working dir
+    cwd = os.getcwd()
 
     # Obtain levels and modes
     input_path = f'{cwd}/{args.config}'
@@ -351,10 +363,8 @@ if __name__ == '__main__':
             data = yaml.safe_load(f)
         levels = data['Tree']
         modes = data['Modes']
-        #modes = convert_placeholders(data['Modes'])
     else:
         raise FileNotFoundError('Please make sure there is a proper config file (YAML) in the script directory.')
-
 
     # Select levels
     choices = level_select(levels, args.ignore)
@@ -363,5 +373,3 @@ if __name__ == '__main__':
     mode = mode_select(modes, args.modifier)
     #quit()
     run(mode, choices, args.modifier, log_file=args.log)
-
-
