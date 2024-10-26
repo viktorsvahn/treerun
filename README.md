@@ -63,7 +63,6 @@ Select an option: 1
 Summary:
 ————————————————————————————————————————————————————————————————————————————————
 Mode:              Training
-Modifier:          None
 System             ['system1']
 Parameter set 1    ['param11']
 Parameter set 2    ['param21']
