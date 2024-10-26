@@ -1,0 +1,21 @@
+Tree:
+  System:
+    - system1
+    - system2
+  Parameter set 1:
+    - param11
+    - param12
+  Parameter set 2:
+    - param21
+    - param22
+    - param23
+
+Modes:
+  Mode 1: 
+    cmd: ./run.sh
+  Mode 2: 
+    cmd: ./run.sh
+    dir: test-{mod}
+  Mode 3: 
+    cmd: ./run.sh
+    dir: test-{mod}/x
