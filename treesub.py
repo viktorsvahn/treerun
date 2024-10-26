@@ -139,12 +139,12 @@ def level_cycler(description, options):
             continue
 
         # If selection is not digit, select all using '*' or simply 'enter'
-        elif (index_selection == '') and (type(options) != dict):
+        elif (index_selection in ['', '*']) and (type(options) != dict):
             # Filter all ignored if multiple selections
             selection = [s for s in options if s not in args.ignore]
             break
         elif type(options) == dict:
-            print(f'Please specify a single mode.')
+            print(f'Only one mode at a time can be selected.')
         else:
             print(f'Enter an integer or press enter to select all.')
         continue
