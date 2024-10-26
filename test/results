@@ -1,0 +1,49 @@
+==TEST 1: TESTING FIRST MODE WIHTOUT MODIFIED MODE PATH==
+Checking if all files could be located:
+PASS
+Checking if some files could not be located:
+PASS
+Checking if some runs were unsuccessful:
+PASS
+
+==TEST 2: TESTING SECOND MODE WITH MODIFIED MODE PATH (test-1)==
+Checking if all files could be located:
+PASS
+Checking if some files could not be located:
+PASS
+Checking if some runs were unsuccessful:
+PASS
+
+==TEST 3: TESTING SECOND MODE WITH MODIFIED MODE PATH (test-SOME_MODIFIER)==
+Checking if all files could be located:
+PASS
+Checking if at least one file could be located:
+PASS
+Checking if some runs were unsuccessful:
+PASS
+
+==TEST 4: TESTING THIRD MODE WITH MODIFIED MODE PATH (test-1/x)==
+Checking if all files could be located:
+PASS
+Checking if some files could not be located:
+PASS
+Checking if some runs were unsuccessful:
+PASS
+
+==TEST 5: TESTING FIRST MODE WIHTOUT MODIFIED MODE PATH, SELECTING 1:ALL:3==
+Checking if all files could be located:
+PASS
+Checking if some files could not be located:
+PASS
+Checking if some runs were unsuccessful:
+PASS
+
+==TEST 6: TESTING SECOND MODE WITH MODIFIED MODE PATH (test-1), SELECTING 1:ALL:3==
+Checking if all files could be located:
+PASS
+Checking if some files could not be located:
+PASS
+Checking if some runs were unsuccessful:
+PASS
+
+OVERALL RESULT: PASS
