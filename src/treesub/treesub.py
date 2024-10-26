@@ -9,17 +9,11 @@ import subprocess
 import copy
 import datetime
 from pathlib import Path
-#import numpy as np
 
 import itertools
 import functools
 import collections
 
-
-"""
-This should be reconstructed to use lists since the indices in dict form within
-the YAML-file is superfluous!
-"""
 
 # Add argparse command to ignore keywords, such as for example MULTIHEAD
 parser = argparse.ArgumentParser(
@@ -31,10 +25,6 @@ parser.add_argument('-c', '--config', default='input.yaml')
 parser.add_argument('-i', '--ignore', nargs='+', default=[])
 parser.add_argument('-l', '--log', default=None)
 args = parser.parse_args()
-
-
-# This should be the name of the test dir
-#test_dir = 'test_run-'
 
 
 def whitespace(strings, tab_width=4, max_length=None):
@@ -195,8 +185,6 @@ def mode_select(dictionary, modifier):
         integer_to_mode_map[i+1] = key,val
     selection = level_cycler('Select an option: ', integer_to_mode_map)
 
-    #indentation, _ = whitespace(choices)
-
     # Summarise and print selections.
     ## Merge special variables with choices, conditional or non-conditional
     ## Tabulate merged dict
@@ -266,7 +254,6 @@ def check_files(paths):
 
 
 def run(mode, dictionary, modifier, log_file):
-
     mode, mode_dict = mode
     successful, unsuccessful = [],[]
     
