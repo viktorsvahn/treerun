@@ -9,8 +9,8 @@ build-backend = "setuptools.build_meta"
 enabled = true
 dev_template = "{tag}"
 
-#[tool.setuptools.packages.find]
-#where = ["src"]
+[tool.setuptools.packages.find]
+where = ["src"]
 
 
 [project]
