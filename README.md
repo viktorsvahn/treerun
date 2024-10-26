@@ -86,3 +86,21 @@ Root dir:     /home/viktor/Documents/scripts/python/submit
 Successfully submitted:
 /system1/param11/param21    ./run.sh
 ```
+and after running with the flag `--modifier SOME_MODIFIER` and selecting mode nr 2, the log file contains
+```
+————————————————————————————————————————————————————————————————————————————————
+Mode:         Training
+Submitted:    2024-10-26 13:07:48.465873
+Root dir:     /home/viktor/Documents/scripts/python/submit
+
+Successfully submitted:
+/system1/param11/param21    ./run.sh
+————————————————————————————————————————————————————————————————————————————————
+Mode:         Analysis
+Submitted:    2024-10-26 14:36:38.812880
+Root dir:     /home/viktor/Documents/python/treerun/v0.0.1/test
+
+Successfully submitted:
+/system1/param11/param21/test-SOME_MODIFIER    ./run.sh
+```
+
