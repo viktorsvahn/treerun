@@ -1,0 +1,7 @@
+.gitignore
+*.log
+*.out
+*egg*
+*__pycache__*
+*build
+*/*/logs

@@ -14,16 +14,91 @@ import itertools
 import functools
 import collections
 
+
+description = f"""
+Treerun is a CLI for running teriminal commands from all subdirectories in an
+existing tree structure.
+
+The purpose of this software is to be able to run terminal commands from sub-
+directories in a tree structure. Each node (sub-directory) must contain the
+same subdirectories as its neighbour within a level so that the number of
+splits is constant over each level.
+
+The config is YAML-based and should contain a `Tree`-block and a `Modes`-block.
+The former defines the tree structure of all directories by including sub-
+blocks that contain the directories within that level and the latter is used to
+the define available commands.
+
+The number of end nodes, and therefore also the 
+number of commands that will be run, is equal to the product of all entries 
+within each level- The program also supports placeholders (modifiers) that can
+be used to make runs more dynamic.
+
+Config file example:
+---
+Tree:
+  First directory level:  <-- config file should be in same dir as these
+    - dir1
+    - dir2
+  Second directory level: <-- each dir above contains all these
+    - subdir1
+    - subdir2
+  Third directory level:  <-- each dir above contains all these
+    - subsubdir1
+    - subsubdir2
+    - subsubdir2
+
+Modes:
+  Mode 1:                 <-- name of mode (shown during selection)
+    cmd: ./run.sh         <-- command to be run ('command: ' is equally valid)
+  Mode 2: 
+    cmd: ./run.sh
+    dir: test-{{mod}}       <-- possible subdir under subsubdir*
+---
+"""
+
+# 80-23=57 spaces wide
+modifier_help = """modifiers are used to substitute {some modifier} in 
+the \'Modes\' block of the input YAML-file
+"""
+
+config_help = """config file (YAML-format) that contains a \'Tree\'-block
+with the names of all directories in each level and a
+\'Modes\'-block that contains all the commands
+"""
+
+ignore_help = """the program will ignore all nodes corresponding to any 
+input given here
+"""
+
+log_help = """information about which programs were run and which were
+not will be stored in a log file with the name given here
+"""
+
 # Add argparse command to ignore keywords, such as for example MULTIHEAD
 parser = argparse.ArgumentParser(
-    prog='ProgramName',
-    description='What the program does',
-    epilog='Text at the bottom of help'
+    prog='treerun',
+    description=description,
+    epilog='Text at the bottom of help',
+    formatter_class=argparse.RawTextHelpFormatter,
 )
-parser.add_argument('-m', '--modifier', type=str)
-parser.add_argument('-c', '--config', default='input.yaml')
-parser.add_argument('-i', '--ignore', nargs='+', default=[])
-parser.add_argument('-l', '--log', default=None)
+parser.add_argument(
+    '-m', '--modifier', type=str,
+    help=modifier_help,
+)
+parser.add_argument(
+    '-c', '--config', default='input.yaml',
+    help=config_help,
+)
+parser.add_argument(
+    '-i', '--ignore', nargs='+', default=[],
+    help=ignore_help,
+)
+parser.add_argument(
+    '-l', '--log', default=None,
+    help=log_help,
+)
+
 args = parser.parse_args()
 
 
