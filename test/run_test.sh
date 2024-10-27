@@ -19,7 +19,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n1' | python3 ../src/treerun/main.py -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n1' | python3 ../src/dendrun/main.py -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -53,7 +53,7 @@ TESTLOG="test2.log"
 rm "logs/$TESTLOG" "logs/$TESTOUT"
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n2' | python3 ../src/treerun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n2' | python3 ../src/dendrun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -89,7 +89,7 @@ TESTLOG="test3.log"
 rm "logs/$TESTLOG" "logs/$TESTOUT"
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n2\ny' | python3 ../src/treerun/main.py -m SOME_MODIFIER -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n2\ny' | python3 ../src/dendrun/main.py -m SOME_MODIFIER -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -124,7 +124,7 @@ TESTLOG="test4.log"
 rm "logs/$TESTLOG" "logs/$TESTOUT"
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n3\ny' | python3 ../src/treerun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n3\ny' | python3 ../src/dendrun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -159,7 +159,7 @@ TESTLOG="test5.log"
 rm "logs/$TESTLOG" "logs/$TESTOUT"
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '1\n\n3\n1' | python3 ../src/treerun/main.py -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '1\n\n3\n1' | python3 ../src/dendrun/main.py -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -195,7 +195,7 @@ TESTLOG="test6.log"
 rm "logs/$TESTLOG" "logs/$TESTOUT"
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '1\n\n3\n2' | python3 ../src/treerun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '1\n\n3\n2' | python3 ../src/dendrun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then

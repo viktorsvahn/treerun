@@ -14,14 +14,14 @@ where = ["src"]
 
 
 [project]
-name = "treerun"
+name = "dendrun"
 dynamic = ["version"]
 authors = [
   { name="Viktor Svahn", email="svahnv@gmail.com" },
 ]
 description = "CLI for running teriminal commands from all subdirectories in a tree structure."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -29,9 +29,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/viktorsvahn/treerun/"
-Issues = "https://github.com/viktorsvahn/treerun/issues"
+Homepage = "https://github.com/viktorsvahn/dendrun/"
+Issues = "https://github.com/viktorsvahn/dendrun/issues"
 
 
 [project.scripts]
-treerun = "treerun.main:main"
+dendrun = "dendrun.main:main"
