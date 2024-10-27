@@ -83,7 +83,7 @@ given here
 
 # Add argparse command to ignore keywords, such as for example MULTIHEAD
 parser = argparse.ArgumentParser(
-    prog='dendrun',
+    prog='treerun',
     description=description,
     epilog='Text at the bottom of help',
     formatter_class=argparse.RawTextHelpFormatter,

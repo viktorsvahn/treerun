@@ -1,4 +1,4 @@
-# dendrun
+# treerun
 CLI for running teriminal commands from all sub-directories in a tree structure.
 
 The purpose of this software is to be able to run terminal commands from sub-directories in a tree structure. Each node (sub-directory) must contain the same sub-directories as its neighbour within a level so that the number of splits is constant over each level.
@@ -30,7 +30,7 @@ Modes:
 ```
 After having placed a file ('input.yaml', for example) containing the above definitions in the same directory as 'dir1' and 'dir2', the program is run by calling:
 ```
-python3 dendrun.py --modifier 1 --config input.yaml --log test.log
+python3 treerun.py --modifier 1 --config input.yaml --log test.log
 ```
 
 The following is an example where 'dir1', 'subdir1', 'subsubdir1', and 'Mode 1' was selected:
@@ -82,7 +82,7 @@ which produced the following output to the file 'test.log':
 ————————————————————————————————————————————————————————————————————————————————
 Mode:         Mode 1
 Submitted:    2024-10-26 13:07:48.465873
-Root dir:     /home/user/Documents/python/dendrun/v0.0.1/test
+Root dir:     /home/user/Documents/python/treerun/v0.0.1/test
 
 Successfully submitted:
 /dir1/subdir1/subsubdir1    ./run.sh
@@ -92,14 +92,14 @@ and after running with the flag `--modifier SOME_MODIFIER` and selecting mode nr
 ————————————————————————————————————————————————————————————————————————————————
 Mode:         Mode 1
 Submitted:    2024-10-26 13:07:48.465873
-Root dir:     /home/user/Documents/python/dendrun/v0.0.1/test
+Root dir:     /home/user/Documents/python/treerun/v0.0.1/test
 
 Successfully submitted:
 /dir1/subdir1/subsubdir1    ./run.sh
 ————————————————————————————————————————————————————————————————————————————————
 Mode:         Mode 2
 Submitted:    2024-10-26 14:36:38.812880
-Root dir:     /home/user/Documents/python/dendrun/v0.0.1/test
+Root dir:     /home/user/Documents/python/treerun/v0.0.1/test
 
 Successfully submitted:
 /dir1/subdir1/subsubdir1/test-SOME_MODIFIER    ./run.sh
