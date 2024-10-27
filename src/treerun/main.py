@@ -71,9 +71,15 @@ ignore_help = """the program will ignore all nodes corresponding to any
 input given here
 """
 
-log_help = """information about which programs were run and which were
-not will be stored in a log file with the name given here
+all_help = """automatically selects all non-ignored paths without 
+prompts
 """
+
+log_help = """information about which programs were run and which 
+were not will be stored in a log file with the name
+given here
+"""
+#                        not will be stored in a log file with the name given here
 
 # Add argparse command to ignore keywords, such as for example MULTIHEAD
 parser = argparse.ArgumentParser(
@@ -93,6 +99,10 @@ parser.add_argument(
 parser.add_argument(
     '-i', '--ignore', nargs='+', default=[],
     help=ignore_help,
+)
+parser.add_argument(
+    '-a', '--all', action='store_true',
+    help=all_help,
 )
 parser.add_argument(
     '-l', '--log', default=None,
@@ -176,44 +186,47 @@ def convert_placeholders(dictionary, args):
     return tmp
 
 
-def level_cycler(description, options):
-    while True:
-        # Attempt selection
-        index_selection = input(description)
+def make_selection(description, options, select_all):
+    if select_all:
+        selection = [s for s in options if s not in args.ignore]
+    else:            
+        while True:
+            # Attempt selection
+            index_selection = input(description)
 
-        # Evaluate selection, repeat attempt if criteria not met
-        ## Single entry selections are simple index-slices of a list
-        if index_selection.isdigit():
-            index_selection = int(index_selection)
+            # Evaluate selection, repeat attempt if criteria not met
+            ## Single entry selections are simple index-slices of a list
+            if index_selection.isdigit():
+                index_selection = int(index_selection)
 
-            ## Make sure index is valid
-            if 1 <= index_selection < len(options)+1:
-                if type(options) == list:
-                    selection = options[index_selection-1]
-                
-                # Do not quite understand why this is needed
-                elif type(options) == dict:
-                    selection = options[index_selection]
+                ## Make sure index is valid
+                if 1 <= index_selection < len(options)+1:
+                    if type(options) == list:
+                        selection = options[index_selection-1]
+                    
+                    # Do not quite understand why this is needed
+                    elif type(options) == dict:
+                        selection = options[index_selection]
 
-                # Keep only non-ignored selections
-                if selection not in args.ignore:
-                    break
+                    # Keep only non-ignored selections
+                    if selection not in args.ignore:
+                        break
+                    else:
+                        print('This option is being ignored. Please select another.')
                 else:
-                    print('This option is being ignored. Please select another.')
-            else:
-                print(f'Integer selections must be between 1 and {len(options)}')
-            continue
+                    print(f'Integer selections must be between 1 and {len(options)}')
+                continue
 
-        # If selection is not digit, select all using '*' or simply 'enter'
-        elif (index_selection in ['', '*']) and (type(options) != dict):
-            # Filter all ignored if multiple selections
-            selection = [s for s in options if s not in args.ignore]
-            break
-        elif type(options) == dict:
-            print(f'Only one mode at a time can be selected.')
-        else:
-            print(f'Enter an integer or press enter to select all.')
-        continue
+            # If selection is not digit, select all using '*' or simply 'enter'
+            elif (index_selection in ['', '*']) and (type(options) != dict):
+                # Filter all ignored if multiple selections
+                selection = [s for s in options if s not in args.ignore]
+                break
+            elif type(options) == dict:
+                print(f'Only one mode at a time can be selected.')
+            else:
+                print(f'Enter an integer or press enter to select all.')
+            continue
 
     return selection
 
@@ -232,7 +245,7 @@ def level_select(dictionary, ignore):
                     print(f'({i+1}) {v}')
 
             # Make selection
-            selection = level_cycler('Enter an integer to select an option (press enter to select all): ', val)
+            selection = make_selection('Enter an integer to select an option (press enter to select all): ', val, select_all=args.all)
 
             # Selection must be a list (preparation for cartiesian product)
             if type(selection) == str:
@@ -243,12 +256,12 @@ def level_select(dictionary, ignore):
     return choices
 
 
-def header(string):
-    """Simple header with em-dash (U+2014).
+def header(string, width=80):
+    """Simple header with lines abive and below (em-dash: U+2014).
     """
-    print(80*'\u2014')
+    print(width*'\u2014')
     print(string)
-    print(80*'\u2014')
+    print(width*'\u2014')
 
 
 def mode_select(dictionary, modifier):
@@ -259,18 +272,7 @@ def mode_select(dictionary, modifier):
     for i, (key,val) in enumerate(dictionary.items()):
         print(f'({i+1}) {key}')
         integer_to_mode_map[i+1] = key,val
-    selection = level_cycler('Select an option: ', integer_to_mode_map)
-
-    # Summarise and print selections.
-    ## Merge special variables with choices, conditional or non-conditional
-    ## Tabulate merged dict
-    #header('Summary:')
-    #tmp = {
-    #    'Mode:':selection[0],
-    #}
-    #if modifier is not None:
-    #    tmp['Modifier:'] = modifier
-    #tabulate(tmp|choices)
+    selection = make_selection('Select an option: ', integer_to_mode_map, select_all=False)
 
     return selection
 
@@ -447,7 +449,6 @@ def main():
 
     # Select levels
     choices = level_select(levels, args.ignore)
-    print(choices)
 
     # Select modes and run
     mode = mode_select(modes, args.modifier)
