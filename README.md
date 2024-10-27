@@ -26,7 +26,7 @@ Modes:
     cmd: ./run.sh         <-- command to be run ('command: ' is equally valid)
   Mode 2: 
     cmd: ./run.sh
-    dir: test-{mod}       <-- possible subdir under subsubdir*
+    dir: test-{mod}       <-- subdir under subsubdir*
 ```
 After having placed a file ('input.yaml', for example) containing the above definitions in the same directory as 'dir1' and 'dir2', the program is run by calling:
 ```

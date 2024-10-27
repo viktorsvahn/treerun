@@ -53,7 +53,7 @@ Modes:
     cmd: ./run.sh         <-- command to be run ('command: ' is equally valid)
   Mode 2: 
     cmd: ./run.sh
-    dir: test-{{mod}}       <-- possible subdir under subsubdir*
+    dir: test-{{mod}}       <-- subdir under subsubdir*
 ---
 """
 
