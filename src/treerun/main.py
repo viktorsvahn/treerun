@@ -445,7 +445,7 @@ def main():
         levels = data['Tree']
         modes = data['Modes']
     else:
-        raise FileNotFoundError('Please make sure there is a proper config file (YAML) in the script directory.')
+        raise FileNotFoundError('Please make sure there is a proper config file (YAML) in the root directory.')
 
     # Select levels
     choices = level_select(levels, args.ignore)
