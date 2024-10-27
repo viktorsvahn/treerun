@@ -1,71 +1,72 @@
 # treerun
-CLI for running teriminal commands from all subdirectories in a tree structure.
+CLI for running teriminal commands from all sub-directories in a tree structure.
 
-This software is used for running terminal/bash commands from subdirectories in a tree of direcotries. Each node (sub-directory) must contain the same sub-direcotries as its neighbour. That is, the number of splits must be constant for each level.
+The purpose of this software is to be able to run terminal commands from sub-directories in a tree structure. Each node (sub-directory) must contain the same sub-directories as its neighbour within a level so that the number of splits is constant over each level.
+
+The config is YAML-based and should contain a `Tree`-block and a `Modes`-block. The former defines the tree structure of all directories by including sub-blocks that contain the directories within that level and the latter is used to the define available commands.
 
 The input is YAML-based and should contain a `Tree`-block and a `Modes`-block. The former specifies the tree structure of all directories and the latter the type of commands, and from which sub-directories of the end-nodes (if there are any), the commands should be run. The program also supports placeholders for certain variables (currently only seed and mode).
 
-# Example:
-We consider a tree structure with three levels, the first two levels each have two directories (system1 and system2 each contain param11 and param12.) The third and last level contains three directories (param21, param22, param23), resulting in a total of 12 end nodes that each contain some mode for running. In the below example 'Training' and 'Analysis' are the two available modes. Selecting 'Training' will attempt to run the command './run.sh' under all twelve paths with the pattern '/\*/\*/param2\*'. On the hand, selecting 'Analysis' will result a script with the same name being run from '/\*/\*/param2\*/test-{seed}' where 'mod' will be exchanged for a modifier given when running the program (optional).
+Config file example:
 ```
 Tree:
-  System:
-    - system1
-    - system2
-  Parameter set 1:
-    - param11
-    - param12
-  Parameter set 2:
-    - param21
-    - param22
-    - param23
+  First directory level:  <-- config file should be in same dir as these
+    - dir1
+    - dir2
+  Second directory level: <-- each dir above contains all these
+    - subdir1
+    - subdir2
+  Third directory level:  <-- each dir above contains all these
+    - subsubdir1
+    - subsubdir2
+    - subsubdir2
 
 Modes:
-  Training: 
+  Mode 1:                 <-- name of mode (shown during selection)
+    cmd: ./run.sh         <-- command to be run ('command: ' is equally valid)
+  Mode 2: 
     cmd: ./run.sh
-  Analysis: 
-    cmd: ./run.sh
-    dir: test-{mod}
+    dir: test-{mod}       <-- possible subdir under subsubdir*
 ```
-After having placed a file ('input.yaml', for example) containing the above definitions in the same directory as 'system1' and 'system2', the program is run by calling:
+After having placed a file ('input.yaml', for example) containing the above definitions in the same directory as 'dir1' and 'dir2', the program is run by calling:
 ```
 python3 treerun.py --modifier 1 --config input.yaml --log test.log
 ```
 
-The following is an example where 'system1', 'param11', 'param21', and 'Training' was selected:
+The following is an example where 'dir1', 'subdir1', 'subsubdir1', and 'Mode 1' was selected:
 ```
 ————————————————————————————————————————————————————————————————————————————————
-System
+First directory level
 ————————————————————————————————————————————————————————————————————————————————
-(1) system1
-(2) system2
+(1) dir1
+(2) dir2
 Enter an integer to select an option (press enter to select all): 1
 ————————————————————————————————————————————————————————————————————————————————
-Parameter set 1
+Second directory level
 ————————————————————————————————————————————————————————————————————————————————
-(1) param11
-(2) param12
+(1) subdir1
+(2) subdir2
 Enter an integer to select an option (press enter to select all): 1
 ————————————————————————————————————————————————————————————————————————————————
-Parameter set 2
+Third directory level
 ————————————————————————————————————————————————————————————————————————————————
-(1) param21
-(2) param22
-(3) param23
+(1) subsubdir1
+(2) subsubdir2
+(3) subsubdir3
 Enter an integer to select an option (press enter to select all): 1
 ————————————————————————————————————————————————————————————————————————————————
 Select mode:
 ————————————————————————————————————————————————————————————————————————————————
-(1) Training
-(2) Analysis
+(1) Mode 1
+(2) Mode 2
 Select an option: 1
 ————————————————————————————————————————————————————————————————————————————————
 Summary:
 ————————————————————————————————————————————————————————————————————————————————
-Mode:              Training
-System             ['system1']
-Parameter set 1    ['param11']
-Parameter set 2    ['param21']
+Mode:              Mode 1
+System             ['dir1']
+Parameter set 1    ['subdir1']
+Parameter set 2    ['subsubdir1']
 ————————————————————————————————————————————————————————————————————————————————
 Checking directories:
 ————————————————————————————————————————————————————————————————————————————————
@@ -73,34 +74,34 @@ All relevant directories exist. Proceeding with submission attempt.
 ————————————————————————————————————————————————————————————————————————————————
 Submitting:
 ————————————————————————————————————————————————————————————————————————————————
-Moving to:    /system1/param11/param21
+Moving to:    /dir1/subdir1/subsubdir1
 Running:      ./run.sh
 ```
 which produced the following output to the file 'test.log':
 ```
 ————————————————————————————————————————————————————————————————————————————————
-Mode:         Training
+Mode:         Mode 1
 Submitted:    2024-10-26 13:07:48.465873
 Root dir:     /home/user/Documents/python/treerun/v0.0.1/test
 
 Successfully submitted:
-/system1/param11/param21    ./run.sh
+/dir1/subdir1/subsubdir1    ./run.sh
 ```
 and after running with the flag `--modifier SOME_MODIFIER` and selecting mode nr 2, the log file contains
 ```
 ————————————————————————————————————————————————————————————————————————————————
-Mode:         Training
+Mode:         Mode 1
 Submitted:    2024-10-26 13:07:48.465873
 Root dir:     /home/user/Documents/python/treerun/v0.0.1/test
 
 Successfully submitted:
-/system1/param11/param21    ./run.sh
+/dir1/subdir1/subsubdir1    ./run.sh
 ————————————————————————————————————————————————————————————————————————————————
-Mode:         Analysis
+Mode:         Mode 2
 Submitted:    2024-10-26 14:36:38.812880
 Root dir:     /home/user/Documents/python/treerun/v0.0.1/test
 
 Successfully submitted:
-/system1/param11/param21/test-SOME_MODIFIER    ./run.sh
+/dir1/subdir1/subsubdir1/test-SOME_MODIFIER    ./run.sh
 ```
 
