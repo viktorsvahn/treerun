@@ -1,0 +1,87 @@
+input: 'input.yaml'
+logdir: 'logs/'
+results: 'result.out'
+
+base layout: &base
+  stdout: '{name}.out'
+  log: '{name}.log'
+
+tests:
+  perm_111_1: 
+    desc: 'Permutation: 1-1-1 (Mode 1)'
+    <<: *base
+    selection: '1111'
+  perm_121_1:
+    desc: 'Permutation: 1-2-1 (Mode 1)'
+    <<: *base
+    selection: '1211'
+  perm_123_1:
+    desc: 'Permutation: 1-2-3 (Mode 1)'
+    <<: *base
+    selection: '1231'
+  perm_211_1: 
+    desc: 'Permutation: 2-1-1 (Mode 1)'
+    <<: *base
+    selection: '2111'
+  perm_222_1:
+    desc: 'Permutation: 2-2-2 (Mode 1)'
+    <<: *base
+    selection: '2221'
+  perm_213_1:
+    desc: 'Permutation: 2-1-3 (Mode 1)'
+    <<: *base
+    selection: '2131'
+  perm_a11-1:
+    desc: 'Permutation: all-1-1 (Mode 1)'
+    <<: *base
+    selection: '*111'
+  perm_2a3-1:
+    desc: 'Permutation: 2-all-3 (Mode 1)'
+    <<: *base
+    selection: '2*31'
+  perm_22a-1:
+    desc: 'Permutation: 2-all-1 (Mode 1)'
+    <<: *base
+    selection: '22*1'
+
+  mode_2-modifier-1_2:
+    desc: 'Second mode with simple modifier=1 (Mode 2)'
+    <<: *base
+    mod: 1
+    all: true
+    selection: '2'
+  mode_2-modifier-SOME_MODIFIER_2:
+    desc: 'Second mode with simple modifier=SOME_MODIFIER (Mode 2)'
+    <<: *base
+    mod: 'SOME_MODIFIER'
+    all: true
+    selection: '2'
+  mode_3-modifier-1-x_3:
+    desc: 'Second mode with modifier=1 and dir extension (Mode 3)'
+    <<: *base
+    mod: 1
+    all: true
+    selection: '3y'
+
+  pruned_1up_4:
+    desc: 'Pruned to -1 level (param11) (Mode 4)'
+    <<: *base
+    all: true
+    selection: '4'
+  grafted_1up-extend_5:
+    desc: 'Pruned to -1 level (param11) and extended to new dir (prune_extend) (Mode 5)'
+    <<: *base
+    all: true
+    selection: '5'
+
+  shared_accumulated-out_6:
+    desc: 'Shared output (accumulated.out) (Mode 6)'
+    <<: *base
+    all: true
+    selection: '5'
+
+  xx:
+    desc: 'test that will fail'
+    <<: *base
+    all: true
+    selection: '2'

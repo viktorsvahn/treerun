@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TESTRESULT="test.res"
+TESTRESULT="result.out"
 RESULT="PASS"
 
 if [[ -f $TESTRESULT ]]; then
@@ -22,7 +22,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n1' | python3 ../src/treerun/main.py -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n1' | python3 ../src/treerun/main.py -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -61,7 +61,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n2' | python3 ../src/treerun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n2' | python3 ../src/treerun/main.py -m 1 -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -102,7 +102,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n2\ny' | python3 ../src/treerun/main.py -m SOME_MODIFIER -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n2\ny' | python3 ../src/treerun/main.py -m SOME_MODIFIER -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -142,7 +142,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '\n\n\n3\ny' | python3 ../src/treerun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '\n\n\n3\ny' | python3 ../src/treerun/main.py -m 1 -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -182,7 +182,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '1\n\n3\n1' | python3 ../src/treerun/main.py -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '1\n\n3\n1' | python3 ../src/treerun/main.py -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -223,7 +223,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '1\n\n3\n2' | python3 ../src/treerun/main.py -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '1\n\n3\n2' | python3 ../src/treerun/main.py -m 1 -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -260,7 +260,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '4' | python3 ../src/treerun/main.py -a -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '4' | python3 ../src/treerun/main.py -a -m 1 -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then
@@ -300,7 +300,7 @@ if [[ -f "logs/$TESTOUT" ]]; then
 fi
 
 echo $TEST | tee -a $TESTRESULT
-echo -ne '5' | python3 ../src/treerun/main.py -a -m 1 -c input.yaml -l "logs/$TESTLOG" >> "logs/$TESTOUT"
+echo -ne '5' | python3 ../src/treerun/main.py -a -m 1 -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 
 echo "Checking if all files could be located:" >> $TESTRESULT
 if [ $(grep -c "Could not locate\|" "logs/$TESTOUT") -eq 1 ]; then

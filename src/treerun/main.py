@@ -3,7 +3,7 @@
 import sys
 import os
 import argparse
-import json
+#import json
 import yaml
 import subprocess
 import copy
@@ -12,7 +12,7 @@ from pathlib import Path
 
 import itertools
 import functools
-import collections
+#import collections
 
 from importlib.metadata import version
 
@@ -26,21 +26,16 @@ directories in a tree structure. Each node (sub-directory) must contain the
 same subdirectories as its neighbour within a level so that the number of
 splits is constant over each level.
 
-The config is YAML-based and should contain a `Tree`-block and a `Modes`-block.
+The input is YAML-based and should contain a `Tree`-block and a `Modes`-block.
 The former defines the tree structure of all directories by including sub-
 blocks that contain the directories within that level and the latter is used to
 the define available commands (use --example to see an example).
-
-The number of end nodes, and therefore also the 
-number of commands that will be run, is equal to the product of all entries 
-within each level- The program also supports placeholders (modifiers) that can
-be used to make runs more dynamic.
 """
 
 example_tree = """Example tree structure:
 ---
 root-dir                    <-- arbitrary root directory
-├── input.yaml              <-- config file must be in root-dir
+├── input.yaml              <-- input file must be in root-dir
 ├── dir1
 │   ├── subdir1
 │   │   ├── subsubdir1
@@ -96,7 +91,7 @@ root-dir                    <-- arbitrary root directory
             └── test-mod
                 └── run.sh
 ---
-and its associated config:
+and its associated input:
 ---
 Tree:
   First directory level:   <-- arbitrary name (shown during selection)
@@ -121,7 +116,7 @@ Modes:
 
 epilog = """Run:
 > treerun --example
-to see an example tree structure with its accosiated config file.
+to see an example tree structure with its associated input file.
 """
 
 
@@ -134,16 +129,16 @@ modifier_help = """modifiers are used to substitute {mod} in
 the \'Modes\' block of the input YAML-file
 """
 
-config_help = """config file (YAML-format) that contains a \'Tree\'-block
+input_help = """input file (YAML-format) that contains a \'Tree\'-block
 with the names of all directories in each level and a
-\'Modes\'-block that contains all the commands
+\'Modes\'-block that contains all commands
 """
 
-ignore_help = """the program will ignore all nodes corresponding to any 
+exclude_help = """the program will exclude all nodes corresponding to any 
 dir-name given here
 """
 
-all_help = """automatically selects all non-ignored paths without any
+all_help = """automatically selects all non-excluded paths without any
 prompts
 """
 
@@ -153,10 +148,9 @@ given here
 """
 
 example_help = """prints a possible tree structure and the contents of an
-associated config file
+associated input file
 """
 
-# Add argparse command to ignore keywords, such as for example MULTIHEAD
 parser = argparse.ArgumentParser(
     prog='treerun',
     description=description,
@@ -172,19 +166,19 @@ parser.add_argument(
     help=modifier_help,
 )
 parser.add_argument(
-    '-c', '--config', default='input.yaml',
-    help=config_help,
+    '-i', '--input', default='input.yaml',
+    help=input_help,
 )
 parser.add_argument(
-    '-i', '--ignore', nargs='+', default=[],
-    help=ignore_help,
+    '-e', '--exclude', nargs='+', default=[],
+    help=exclude_help,
 )
 parser.add_argument(
     '-a', '--all', action='store_true',
     help=all_help,
 )
 parser.add_argument(
-    '-l', '--log', default=None,
+    '-o', '--output', default=None,
     help=log_help,
 )
 parser.add_argument(
@@ -194,6 +188,20 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+
+class ExitCode:
+    """Legend:
+      0:  could not locate the necessary files
+      1:  use input caused program to close
+    """
+    def __init__(self, code,loc=''):
+        self.code = code
+
+        print(f'exit code: {code}')
+        sys.exit()
+
+        #with open(args.output, 'a') as sys.stdout:
+        #    print(f'exit code: {code}')
 
 
 def whitespace(strings, tab_width=4, max_length=None):
@@ -271,11 +279,15 @@ def convert_placeholders(dictionary, args):
 
 def make_selection(description, options, select_all):
     if select_all:
-        selection = [opt for opt in options if opt not in args.ignore]
+        selection = [opt for opt in options if opt not in args.exclude]
     else:            
         while True:
             # Attempt selection
-            index_selection = input(description)
+            try:
+                index_selection = input(description)
+            except EOFError as e:
+                print(e)
+                ExitCode(1)
 
             # Evaluate selection, repeat attempt if criteria not met
             ## Single entry selections are simple index-slices of a list
@@ -292,19 +304,19 @@ def make_selection(description, options, select_all):
                     elif type(options) == dict:
                         selection = options[index_selection]
 
-                    # Keep only non-ignored selections
-                    if selection not in args.ignore:
+                    # Keep only non-excluded selections
+                    if selection not in args.exclude:
                         break
                     else:
-                        print('This option is being ignored. Please select another.')
+                        print('This option is being excluded. Please select another.')
                 else:
                     print(f'Integer selections must be between 1 and {len(options)}')
                 continue
 
             # If selection is not digit, select all using '*' or simply 'enter'
             elif (index_selection in ['', '*']) and (type(options) != dict):
-                # Filter all ignored if multiple selections
-                selection = [s for s in options if s not in args.ignore]
+                # Filter all excluded if multiple selections
+                selection = [s for s in options if s not in args.exclude]
                 break
             elif type(options) == dict:
                 print(f'Only one mode at a time can be selected.')
@@ -315,7 +327,7 @@ def make_selection(description, options, select_all):
     return selection
 
 
-def level_select(dictionary, ignore):
+def level_select(dictionary, exclude):
     choices = {}
     integer_to_mode_map = {}
     for key,val in dictionary.items():
@@ -323,8 +335,8 @@ def level_select(dictionary, ignore):
         header(key)
         if type(val) == list:
             for i, v in enumerate(val):
-                if v in ignore:
-                    print(f'({i+1}) {v} (will be ignored)')
+                if v in exclude:
+                    print(f'({i+1}) {v} (will be excluded)')
                 else:
                     print(f'({i+1}) {v}')
 
@@ -398,16 +410,22 @@ def check_files(paths):
     if len(found) == 0:
         print('Could not locate the relevant directories.')
         print('\nPlease make sure that the appropriate directories exist and that all modifiers\nin the YAML input (if any) have been supplied.')
-        quit()
+        ExitCode(0)
 
     ## Some directories were not found, still continue?
     elif len(not_found) > 0:
         print('Unable to locate the following directories:')
         for file in not_found:
             print(file)
-        if input('Do you still want to continue (y/[n])? ').lower() not in ['y', 'yes']:
-            print('Closing.')
-            quit()
+
+        #if input('Do you still want to continue (y/[n])? ').lower() not in ['y', 'yes']:
+        #    print('Closing.')
+        try:
+            q = input('Do you still want to continue (y/[n])? ').lower()
+            if q not in ['y', 'yes']:
+                print('Closing.')
+        except:
+            ExitCode(1)
 
     # All directories were found
     elif (len(found) == len(paths)) and (len(not_found) == 0):
@@ -420,7 +438,7 @@ def check_files(paths):
 
 def graft_paths(paths:list, graft_point:str) -> list:
     """Given a list of paths, returns a list of paths pruned and grafted with
-    a new path specified as a mode dir in the config.
+    a new path specified as a mode dir in the input.
 
     Keyword arguments:
       paths:        list of paths to be pruned, if possible
@@ -552,29 +570,29 @@ def main():
         print(example_tree)
         quit()
     
-    if args.ignore != []:
-        print(f'Ignoring: {args.ignore}')
+    if args.exclude != []:
+        print(f'Ignoring: {args.exclude}')
 
     # Current working dir
     cwd = os.getcwd()
 
     # Obtain levels and modes
-    input_path = f'{cwd}/{args.config}'
+    input_path = f'{cwd}/{args.input}'
     if os.path.isfile(input_path):
         with open(input_path, 'r') as f:
             data = yaml.safe_load(f)
         levels = data['Tree']
         modes = data['Modes']
     else:
-        raise FileNotFoundError('Please make sure there is a proper config file (YAML) in the root directory.')
+        raise FileNotFoundError('Please make sure there is a proper input file (YAML) in the root directory.')
 
     # Select levels
-    choices = level_select(levels, args.ignore)
+    choices = level_select(levels, args.exclude)
 
     # Select modes and run
     mode = mode_select(modes, args.modifier)
     #quit()
-    run(mode, choices, args.modifier, log_file=args.log)
+    run(mode, choices, args.modifier, log_file=args.output)
 
 
 if __name__ == '__main__':
