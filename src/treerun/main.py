@@ -115,7 +115,6 @@ Modes:
     cmd: ./run.sh
     dir: test-{mod}        <-- subdir under subsubdir* where {mod} is replaced
 ---                            by whatever follows the --modifier (or -m) flag
-
 """
 
 epilog = """Run:
