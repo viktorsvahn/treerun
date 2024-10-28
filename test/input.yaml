@@ -25,3 +25,5 @@ Modes:
   Extended prune mode: 
     cmd: ./run.sh
     dir: param11/prune_extend
+  Shared output 1: 
+    cmd: ./run.sh >> ../test.res
