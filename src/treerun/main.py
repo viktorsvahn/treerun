@@ -408,16 +408,24 @@ def check_files(paths):
 
 
 
-def prune_paths(paths, entry_point):
-    pass
+def graft_paths(paths:list, graft_point:str) -> list:
+    """Given a list of paths, returns a list of paths pruned and grafted with
+    a new path specified as a mode dir in the config.
+
+    Keyword arguments:
+      paths:        list of paths to be pruned, if possible
+      graft_point:  point of entry for grafting where the string section before
+                    the first '/' is part of one of the given paths
+    """
     pruned_paths = []
+    
+    entry_point = graft_point[1:].split('/')[0]
     for path in paths:
-        if (len(entry_point) > 0) and (entry_point in path):
-            pruned_path = path.partition(entry_point)[0]+path.partition(entry_point)[1]
+        if (len(graft_point) > 0) and (entry_point in path):
+            pruned_path = path.partition(entry_point)[0]+graft_point[1:]
             if pruned_path not in pruned_paths:
                 pruned_paths.append(pruned_path)
-        #else:
-        #    pruned_paths.append(path)
+    
     return pruned_paths
 
 
@@ -468,14 +476,15 @@ def run(mode, selected_levels, modifier, log_file):
     # Attempts pruning of paths if the specified run_dir has a lower level than 
     # the maximum
     paths = get_paths(selected_levels)
-    pruned_paths = prune_paths(paths, run_dir)
+    pruned_paths = graft_paths(paths, run_dir)
 
     # Get paths and make find out which actually exist
     if len(pruned_paths) == 0:
         paths = [p+run_dir for p in paths]
+        found, not_found = check_files(paths)
     else:
         paths = [p for p in pruned_paths]
-    found, not_found = check_files(paths)
+        found, not_found = check_files(pruned_paths)
 
     # Attempt to submit all files that were found
     header(f'Submitting:')

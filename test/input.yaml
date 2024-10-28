@@ -22,3 +22,6 @@ Modes:
   Pruned mode: 
     cmd: ./run.sh
     dir: param11
+  Extended prune mode: 
+    cmd: ./run.sh
+    dir: param11/prune_extend
