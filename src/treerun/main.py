@@ -15,7 +15,7 @@ import functools
 import collections
 
 
-description = f"""
+description = """
 Treerun is a CLI for running teriminal commands from all subdirectories in an
 existing tree structure.
 
@@ -27,38 +27,105 @@ splits is constant over each level.
 The config is YAML-based and should contain a `Tree`-block and a `Modes`-block.
 The former defines the tree structure of all directories by including sub-
 blocks that contain the directories within that level and the latter is used to
-the define available commands.
+the define available commands (use --example to see an example).
 
 The number of end nodes, and therefore also the 
 number of commands that will be run, is equal to the product of all entries 
 within each level- The program also supports placeholders (modifiers) that can
 be used to make runs more dynamic.
+"""
 
-Config file example:
+example_tree = """Example tree structure:
+---
+root-dir                    <-- arbitrary root directory
+├── input.yaml              <-- config file must be in root-dir
+├── dir1
+│   ├── subdir1
+│   │   ├── subsubdir1
+│   │   │   ├── run.sh
+│   │   │   └── test-mod    <-- mod is whatever follows the --modifier flag
+│   │   │       └── run.sh
+│   │   ├── subsubdir2
+│   │   │   ├── run.sh
+│   │   │   └── test-mod
+│   │   │       └── run.sh
+│   │   └── subsubdir3
+│   │       ├── run.sh
+│   │       └── test-mod
+│   │           └── run.sh
+│   └── subdir2
+│       ├── subsubdir1
+│       │   ├── run.sh
+│       │   └── test-mod
+│       │       └── run.sh
+│       ├── subsubdir2
+│       │   ├── run.sh
+│       │   └── test-mod
+│       │       └── run.sh
+│       └── subsubdir3
+│           ├── run.sh
+│           └── test-mod
+│               └── run.sh
+└── dir2
+    ├── subdir1
+    │   ├── subsubdir1
+    │   │   ├── run.sh
+    │   │   └── test-mod
+    │   │       └── run.sh
+    │   ├── subsubdir2
+    │   │   ├── run.sh
+    │   │   └── test-mod
+    │   │       └── run.sh
+    │   └── subsubdir3
+    │       ├── run.sh
+    │       └── test-mod
+    │           └── run.sh
+    └── subdir2
+        ├── subsubdir1
+        │   ├── run.sh
+        │   └── test-mod
+        │       └── run.sh
+        ├── subsubdir2
+        │   ├── run.sh
+        │   └── test-mod
+        │       └── run.sh
+        └── subsubdir3
+            ├── run.sh
+            └── test-mod
+                └── run.sh
+---
+and its associated config:
 ---
 Tree:
-  First directory level:  <-- config file should be in same dir as these
-    - dir1
+  First directory level:   <-- arbitrary name (shown during selection)
+    - dir1                 <-- directories must be preceded by dashes
     - dir2
-  Second directory level: <-- each dir above contains all these
-    - subdir1
+  Second directory level:
+    - subdir1              <-- each dir above contains all these
     - subdir2
-  Third directory level:  <-- each dir above contains all these
-    - subsubdir1
+  Third directory level:
+    - subsubdir1           <-- each dir above contains all these
     - subsubdir2
     - subsubdir2
 
 Modes:
-  Mode 1:                 <-- name of mode (shown during selection)
-    cmd: ./run.sh         <-- command to be run ('command: ' is equally valid)
+  Mode 1:                  <-- name of mode (shown during selection)
+    cmd: ./run.sh          <-- command to be run ('command: ' is equally valid)
   Mode 2: 
     cmd: ./run.sh
-    dir: test-{{mod}}       <-- subdir under subsubdir*
----
+    dir: test-{mod}        <-- subdir under subsubdir* where {mod} is replaced
+---                            by whatever follows the --modifier (or -m) flag
+
 """
 
+epilog = """Run:
+> treerun --example
+to see an example tree structure with its accosiated config file.
+"""
+
+
 # 80-23=57 spaces wide
-modifier_help = """modifiers are used to substitute {some modifier} in 
+modifier_help = """modifiers are used to substitute {mod} in 
 the \'Modes\' block of the input YAML-file
 """
 
@@ -68,10 +135,10 @@ with the names of all directories in each level and a
 """
 
 ignore_help = """the program will ignore all nodes corresponding to any 
-input given here
+dir-name given here
 """
 
-all_help = """automatically selects all non-ignored paths without 
+all_help = """automatically selects all non-ignored paths without any
 prompts
 """
 
@@ -79,13 +146,16 @@ log_help = """information about which programs were run and which
 were not will be stored in a log file with the name
 given here
 """
-#                        not will be stored in a log file with the name given here
+
+example_help = """prints a possible tree structure and the contents of an
+associated config file
+"""
 
 # Add argparse command to ignore keywords, such as for example MULTIHEAD
 parser = argparse.ArgumentParser(
     prog='treerun',
     description=description,
-    epilog='Text at the bottom of help',
+    epilog=epilog,
     formatter_class=argparse.RawTextHelpFormatter,
 )
 parser.add_argument(
@@ -107,6 +177,10 @@ parser.add_argument(
 parser.add_argument(
     '-l', '--log', default=None,
     help=log_help,
+)
+parser.add_argument(
+    '--example', action='store_true',
+    help=example_help,
 )
 
 args = parser.parse_args()
@@ -202,7 +276,7 @@ def make_selection(description, options, select_all):
                 ## Make sure index is valid
                 if 1 <= index_selection < len(options)+1:
                     if type(options) == list:
-                        selection = options[index_selection-1]
+                        selection = options[index_selection-mod]
                     
                     # Do not quite understand why this is needed
                     elif type(options) == dict:
@@ -430,6 +504,9 @@ def run(mode, dictionary, modifier, log_file):
 
 #if __name__ == '__main__':
 def main():
+    if args.example:
+        print(example_tree)
+        quit()
     
     if args.ignore != []:
         print(f'Ignoring: {args.ignore}')
