@@ -261,7 +261,7 @@ def convert_placeholders(dictionary, args):
 
 def make_selection(description, options, select_all):
     if select_all:
-        selection = [s for s in options if s not in args.ignore]
+        selection = [opt for opt in options if opt not in args.ignore]
     else:            
         while True:
             # Attempt selection
@@ -275,7 +275,8 @@ def make_selection(description, options, select_all):
                 ## Make sure index is valid
                 if 1 <= index_selection < len(options)+1:
                     if type(options) == list:
-                        selection = options[index_selection-mod]
+                        # Shift of -1 needed for list since prompt starts from 1
+                        selection = options[index_selection-1]
                     
                     # Do not quite understand why this is needed
                     elif type(options) == dict:
@@ -406,7 +407,23 @@ def check_files(paths):
     return found, not_found
 
 
-def run(mode, dictionary, modifier, log_file):
+
+def prune_paths(paths, entry_point):
+    pass
+    pruned_paths = []
+    for path in paths:
+        if (len(entry_point) > 0) and (entry_point in path):
+            pruned_path = path.partition(entry_point)[0]+path.partition(entry_point)[1]
+            if pruned_path not in pruned_paths:
+                pruned_paths.append(pruned_path)
+        #else:
+        #    pruned_paths.append(path)
+    return pruned_paths
+
+
+
+
+def run(mode, selected_levels, modifier, log_file):
     mode, mode_dict = mode
     successful, unsuccessful = [],[]
     cwd = os.getcwd()
@@ -427,7 +444,7 @@ def run(mode, dictionary, modifier, log_file):
     }
     if modifier is not None:
         tmp['Modifier:'] = modifier
-    tabulate(tmp|dictionary)
+    tabulate(tmp|selected_levels)
 
     # Get command
     try:
@@ -447,8 +464,17 @@ def run(mode, dictionary, modifier, log_file):
         except:
             run_dir = ''
 
+
+    # Attempts pruning of paths if the specified run_dir has a lower level than 
+    # the maximum
+    paths = get_paths(selected_levels)
+    pruned_paths = prune_paths(paths, run_dir)
+
     # Get paths and make find out which actually exist
-    paths = [f'{p}{run_dir}' for p in get_paths(dictionary)]
+    if len(pruned_paths) == 0:
+        paths = [p+run_dir for p in paths]
+    else:
+        paths = [p for p in pruned_paths]
     found, not_found = check_files(paths)
 
     # Attempt to submit all files that were found

@@ -19,3 +19,6 @@ Modes:
   Mode 3: 
     cmd: ./run.sh
     dir: test-{mod}/x
+  Pruned mode: 
+    cmd: ./run.sh
+    dir: param11
