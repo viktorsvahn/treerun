@@ -6,82 +6,120 @@ base layout: &base
   stdout: '{name}.out'
   log: '{name}.log'
 
+expectation: &no-errors
+  return code: 0
+  exit code: null
+
+
 tests:
-  perm_111_1: 
+  perm_111: 
     desc: 'Permutation: 1-1-1 (Mode 1)'
     <<: *base
     selection: '1111'
-  perm_121_1:
+    expectation:
+      <<: *no-errors
+  perm_121:
     desc: 'Permutation: 1-2-1 (Mode 1)'
     <<: *base
     selection: '1211'
-  perm_123_1:
+    expectation:
+      <<: *no-errors
+  perm_123:
     desc: 'Permutation: 1-2-3 (Mode 1)'
     <<: *base
     selection: '1231'
-  perm_211_1: 
+    expectation:
+      <<: *no-errors
+  perm_211: 
     desc: 'Permutation: 2-1-1 (Mode 1)'
     <<: *base
     selection: '2111'
-  perm_222_1:
+    expectation:
+      <<: *no-errors
+  perm_222:
     desc: 'Permutation: 2-2-2 (Mode 1)'
     <<: *base
     selection: '2221'
-  perm_213_1:
+    expectation:
+      <<: *no-errors
+  perm_213:
     desc: 'Permutation: 2-1-3 (Mode 1)'
     <<: *base
     selection: '2131'
-  perm_a11-1:
+    expectation:
+      <<: *no-errors
+  perm_a11:
     desc: 'Permutation: all-1-1 (Mode 1)'
     <<: *base
     selection: '*111'
-  perm_2a3-1:
+    expectation:
+      <<: *no-errors
+  perm_2a3:
     desc: 'Permutation: 2-all-3 (Mode 1)'
     <<: *base
     selection: '2*31'
-  perm_22a-1:
+    expectation:
+      <<: *no-errors
+  perm_22a:
     desc: 'Permutation: 2-all-1 (Mode 1)'
     <<: *base
     selection: '22*1'
+    expectation:
+      <<: *no-errors
 
-  mode_2-modifier-1_2:
+  mode_2-modifier-1:
     desc: 'Second mode with simple modifier=1 (Mode 2)'
     <<: *base
     mod: 1
     all: true
     selection: '2'
-  mode_2-modifier-SOME_MODIFIER_2:
+    expectation:
+      <<: *no-errors
+  mode_2-modifier-SOME_MODIFIER:
     desc: 'Second mode with simple modifier=SOME_MODIFIER (Mode 2)'
     <<: *base
     mod: 'SOME_MODIFIER'
     all: true
     selection: '2'
-  mode_3-modifier-1-x_3:
+    expectation:
+      <<: *no-errors
+  mode_3-modifier-1-x:
     desc: 'Second mode with modifier=1 and dir extension (Mode 3)'
     <<: *base
     mod: 1
     all: true
     selection: '3y'
+    expectation:
+      <<: *no-errors
 
-  pruned_1up_4:
+  pruned_1up:
     desc: 'Pruned to -1 level (param11) (Mode 4)'
     <<: *base
     all: true
     selection: '4'
-  grafted_1up-extend_5:
+    expectation:
+      <<: *no-errors
+  grafted_1up-extend:
     desc: 'Pruned to -1 level (param11) and extended to new dir (prune_extend) (Mode 5)'
     <<: *base
     all: true
     selection: '5'
+    expectation:
+      <<: *no-errors
 
-  shared_accumulated-out_6:
+  shared_accumulated-out:
     desc: 'Shared output (accumulated.out) (Mode 6)'
     <<: *base
     all: true
     selection: '5'
+    expectation:
+      <<: *no-errors
 
-  xx:
-    desc: 'test that will fail'
+  mode_2-missing-modifier:
+    desc: 'Running mode 2 without a modifier'
     <<: *base
     all: true
     selection: '2'
+    expectation:
+      return code: 0
+      exit code: 0
