@@ -14,6 +14,8 @@ import itertools
 import functools
 import collections
 
+from importlib.metadata import version
+
 
 description = """
 Treerun is a CLI for running teriminal commands from all subdirectories in an
@@ -124,6 +126,10 @@ to see an example tree structure with its accosiated config file.
 
 
 # 80-23=57 spaces wide
+
+version_help = f'\
+treerun ver. {version("treerun")}'
+
 modifier_help = """modifiers are used to substitute {mod} in 
 the \'Modes\' block of the input YAML-file
 """
@@ -156,6 +162,10 @@ parser = argparse.ArgumentParser(
     description=description,
     epilog=epilog,
     formatter_class=argparse.RawTextHelpFormatter,
+)
+parser.add_argument(
+    '--version', action='version',
+    version=version_help,
 )
 parser.add_argument(
     '-m', '--modifier', type=str,
