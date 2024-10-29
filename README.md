@@ -30,7 +30,7 @@ Modes:
 ```
 After having placed a file ('input.yaml', for example) containing the above definitions in the same directory as 'dir1' and 'dir2', the program is run by calling:
 ```
-python3 treerun.py --modifier 1 --config input.yaml --log test.log
+trn --modifier 1 --config input.yaml --log test.log
 ```
 
 The following is an example where 'dir1', 'subdir1', 'subsubdir1', and 'Mode 1' was selected:

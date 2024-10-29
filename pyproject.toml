@@ -34,4 +34,4 @@ Issues = "https://github.com/viktorsvahn/treerun/issues"
 
 
 [project.scripts]
-treerun = "treerun.main:main"
+trn = "treerun.main:main"

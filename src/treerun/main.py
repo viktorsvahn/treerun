@@ -115,7 +115,7 @@ Modes:
 """
 
 epilog = """Run:
-> treerun --example
+> trn --example
 to see an example tree structure with its associated input file.
 """
 
@@ -152,7 +152,7 @@ associated input file
 """
 
 parser = argparse.ArgumentParser(
-    prog='treerun',
+    prog='trn',
     description=description,
     epilog=epilog,
     formatter_class=argparse.RawTextHelpFormatter,
@@ -497,15 +497,27 @@ def run(mode, selected_levels, modifier, log_file):
         tmp['Modifier:'] = modifier
     tabulate(tmp|selected_levels)
 
-    # Get command
+
     try:
-        cmd = mode_dict['cmd']
+        cmd_args = ' '+' '.join(mode_dict['args'])
     except:
         try:
-            cmd = mode_dict['command']
+            cmd_args = ' '+' '.join(mode_dict['arguments'])
+        except:
+            cmd_args = ''
+
+    # Get command
+    try:
+        cmd = mode_dict['cmd']+cmd_args
+    except:
+        try:
+            cmd = mode_dict['command']+cmd_args
         except:
             Code(4)
             raise KeyError('The current mode does not seem to have any associated command.')
+
+
+
 
     # Get sub-dir to run in, if speecified
     try:
