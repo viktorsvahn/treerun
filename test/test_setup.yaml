@@ -8,7 +8,7 @@ base layout: &base
 
 expectation: &no-errors
   return code: 0
-  exit code: null
+  code: null
 
 
 tests:
@@ -80,7 +80,7 @@ tests:
     <<: *base
     mod: 'SOME_MODIFIER'
     all: true
-    selection: '2'
+    selection: '2y'
     expectation:
       <<: *no-errors
   mode_3-modifier-1-x:
@@ -122,4 +122,4 @@ tests:
     selection: '2'
     expectation:
       return code: 0
-      exit code: 0
+      code: 2

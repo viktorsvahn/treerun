@@ -2,14 +2,15 @@
 
 import os
 import yaml
-from treerun.main import convert_placeholders, whitespace
+from treerun.main import convert_placeholders, whitespace, Code
 import subprocess
-import pandas as pd
+from tabulate import tabulate
+
 
 # template command:
 # echo -ne '\n\n\n1' | python3 ../src/treerun/main.py -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
 if __name__ == '__main__':
-	file = 'tests.yaml'
+	file = 'test_setup.yaml'
 	base_python_cmd = 'python3 ../src/treerun/main.py'
 
 	# Load test config
@@ -29,7 +30,7 @@ if __name__ == '__main__':
 	for file in os.listdir(log_dir):
 		os.remove(f'{log_dir}{file}')
 
-	results = {}
+	results = []
 	for i, (test, definition) in enumerate(conf['tests'].items()):
 		# Map placeholders
 		placeholders = {
@@ -65,55 +66,55 @@ if __name__ == '__main__':
 		# Splits a given string at every digit, and converts all elements to 
 		# integers, causing strings to be effectively dropped.
 		extract_digit = lambda x: [int(s) for s in x.split() if s.isdigit()][0]
-		exit_code = None
+		code = None
 		with open(f'{cwd}/{stdout}', 'r') as f:
 			for line in f.readlines():
-				if 'exit code:' in line:
-					exit_code = extract_digit(line)
+				if 'code:' in line:
+					code = extract_digit(line)
 
 		# Gather expected results
 		expected_return = definition['expectation']['return code']
-		expected_exit = definition['expectation']['exit code']
-		
-		#print(test, exit_code, expected_exit)
+		expected_code = definition['expectation']['code']
 
 		# Check if results match
-		if (exit_code == expected_exit) and (return_code == expected_return):
+		if (code == expected_code) and (return_code == expected_return):
 			try:
 				os.remove(f'{cwd}/{log}')
 			except:
-				exit_code = 1
+				pass
+				#code = 1
 			try:
 				os.remove(f'{cwd}/{stdout}')
 			except:
 				pass
 
 		else:
-			results[test] = {}
-			results[test]['expectation'] = definition['expectation']
-			results[test]['outcome'] = {
-				'return code':return_code,
-				'exit code':exit_code,
-			}
+			outcome = [
+				test,
+				expected_return,
+				return_code,
+				expected_code,
+				code
+			]
+		
+			try:
+				results.append(outcome)
+			except:
+				pass
 
-		#if (return_code == 0) and (exit_code is None):
-		#if exit_code is None:
 
-	#print(results)
-	#treeview(results)
-	#w = whitespace(results, tab_width=4, max_length=None)
-	#print(w)
-	#tabulate(results)
-	#df = pd.DataFrame.from_dict(results, orient='index')
-	df = pd.DataFrame(results)
-	print('Result:')
-	if results == {}:
-		print('All tests passed!')
+	# Creating a table with headers and a grid format
+	table = tabulate(
+	    results, 
+	    headers=["Test", "Expected return code", "Return code", "Expected code", "Exit code"], 
+	    #tablefmt="grid"
+	)
+	if len(results) > 0:
+		print(table)
+
+		codes = Code().interpretations
+		print('\nCode:\tInterpretation:')
+		for key,val in codes.items():
+			print(f'\t{key}\t{val}')
 	else:
-		print('The following tests failed:')
-		print(df)
-
-	print('\nExplanations:')
-	print('Return code 0 means that the program was executed without problems')
-	print('Exit code 0 means that the necessary files could not be found')
-	print('Exit code 1 means that there was a problem with some selection')
+		print('All tests passed!')

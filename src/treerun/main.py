@@ -189,19 +189,31 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-class ExitCode:
+class Code:
     """Legend:
       0:  could not locate the necessary files
       1:  use input caused program to close
     """
-    def __init__(self, code,loc=''):
+    def __init__(self, code=None,loc=''):
         self.code = code
-
-        print(f'exit code: {code}')
-        sys.exit()
+        self.interpretations = {
+            0:'A problem occurred during input-selection',
+            1:'Missing YAML-input',
+            2:'The necessary files could not be found',
+            3:'Error converting placeholders',
+            4:'Missing mode-command',
+            5:'Log-file does not exist',
+        }
+        if self.code != None:
+            print(f'code: {code}')
+        
+        #sys.exit()
 
         #with open(args.output, 'a') as sys.stdout:
-        #    print(f'exit code: {code}')
+        #    print(f'code: {code}')
+
+    def interpret(self, code):
+        return interpretations[code]
 
 
 def whitespace(strings, tab_width=4, max_length=None):
@@ -287,7 +299,7 @@ def make_selection(description, options, select_all):
                 index_selection = input(description)
             except EOFError as e:
                 print(e)
-                ExitCode(1)
+                Code(0)
 
             # Evaluate selection, repeat attempt if criteria not met
             ## Single entry selections are simple index-slices of a list
@@ -308,7 +320,7 @@ def make_selection(description, options, select_all):
                     if selection not in args.exclude:
                         break
                     else:
-                        print('This option is being excluded. Please select another.')
+                        print('This option has been excluded. Please select another.')
                 else:
                     print(f'Integer selections must be between 1 and {len(options)}')
                 continue
@@ -410,7 +422,7 @@ def check_files(paths):
     if len(found) == 0:
         print('Could not locate the relevant directories.')
         print('\nPlease make sure that the appropriate directories exist and that all modifiers\nin the YAML input (if any) have been supplied.')
-        ExitCode(0)
+        Code(2)
 
     ## Some directories were not found, still continue?
     elif len(not_found) > 0:
@@ -425,7 +437,7 @@ def check_files(paths):
             if q not in ['y', 'yes']:
                 print('Closing.')
         except:
-            ExitCode(1)
+            Code(0)
 
     # All directories were found
     elif (len(found) == len(paths)) and (len(not_found) == 0):
@@ -469,7 +481,10 @@ def run(mode, selected_levels, modifier, log_file):
         mod=modifier,
         mode=mode
     )
-    mode_dict = convert_placeholders(mode_dict, placeholder_map)
+    try:
+        mode_dict = convert_placeholders(mode_dict, placeholder_map)
+    except:
+        Code(3); sys.exit()
 
     # Summarise and print selections.
     ## Merge special variables with choices, conditional or non-conditional
@@ -489,6 +504,7 @@ def run(mode, selected_levels, modifier, log_file):
         try:
             cmd = mode_dict['command']
         except:
+            Code(4)
             raise KeyError('The current mode does not seem to have any associated command.')
 
     # Get sub-dir to run in, if speecified
@@ -540,28 +556,31 @@ def run(mode, selected_levels, modifier, log_file):
 
     # Logging
     if log_file != None:
-        with open(f'{cwd}/{log_file}', 'a') as sys.stdout:
-            print(80*'\u2014')
-            tabulate(
-                {
-                    'Mode:':mode,
-                    'Submitted:':datetime.datetime.now(),
-                    'Root dir:':cwd,
-                }
-            )
-            print()
-            print('Successfully submitted:')
-            tabulate({p:cmd for p in successful}, max_length)
-
-            if len(unsuccessful) > 0:
+        try:
+            with open(f'{cwd}/{log_file}', 'a') as sys.stdout:
+                print(80*'\u2014')
+                tabulate(
+                    {
+                        'Mode:':mode,
+                        'Submitted:':datetime.datetime.now(),
+                        'Root dir:':cwd,
+                    }
+                )
                 print()
-                print('Unsuccessful submissions:')
-                tabulate({p:cmd for p in unsuccessful}, max_length)
+                print('Successfully submitted:')
+                tabulate({p:cmd for p in successful}, max_length)
 
-            if len(not_found) > 0:
-                print()
-                print('Not found:')
-                tabulate({p:cmd for p in not_found}, max_length)
+                if len(unsuccessful) > 0:
+                    print()
+                    print('Unsuccessful submissions:')
+                    tabulate({p:cmd for p in unsuccessful}, max_length)
+
+                if len(not_found) > 0:
+                    print()
+                    print('Not found:')
+                    tabulate({p:cmd for p in not_found}, max_length)
+        except:
+            Code(5); sys.exit()
 
 
 #if __name__ == '__main__':
@@ -584,6 +603,7 @@ def main():
         levels = data['Tree']
         modes = data['Modes']
     else:
+        Code(1)
         raise FileNotFoundError('Please make sure there is a proper input file (YAML) in the root directory.')
 
     # Select levels
