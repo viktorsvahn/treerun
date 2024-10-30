@@ -2,7 +2,7 @@
 
 import os
 import yaml
-from treerun.main import convert_placeholders, whitespace, Code
+from treerun.main import convert_placeholders, whitespace, ExitCode
 import subprocess
 from tabulate import tabulate
 
@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
 	results = []
 	for i, (test, definition) in enumerate(conf['tests'].items()):
+		print(f"Testing: {test}\nDescription: {definition['desc']}")
 		# Map placeholders
 		placeholders = {
 			'name':test,
@@ -66,35 +67,38 @@ if __name__ == '__main__':
 		# Splits a given string at every digit, and converts all elements to 
 		# integers, causing strings to be effectively dropped.
 		extract_digit = lambda x: [int(s) for s in x.split() if s.isdigit()][0]
-		code = None
+		exit_code = None
 		with open(f'{cwd}/{stdout}', 'r') as f:
 			for line in f.readlines():
-				if 'code:' in line:
-					code = extract_digit(line)
+				if 'exit code:' in line:
+					exit_code = extract_digit(line)
 
 		# Gather expected results
 		expected_return = definition['expectation']['return code']
-		expected_code = definition['expectation']['code']
+		expected_exit = definition['expectation']['exit code']
 
 		# Check if results match
-		if (code == expected_code) and (return_code == expected_return):
+		if (exit_code == expected_exit) and (return_code == expected_return):
+			print('PASS\n')
 			try:
 				os.remove(f'{cwd}/{log}')
 			except:
 				pass
-				#code = 1
+				#print(f'Could not remove {log}')
 			try:
 				os.remove(f'{cwd}/{stdout}')
 			except:
 				pass
+				#print(f'Could not remove {stdout}')
 
 		else:
+			print('FAIL\n')
 			outcome = [
 				test,
 				expected_return,
 				return_code,
-				expected_code,
-				code
+				expected_exit,
+				exit_code
 			]
 		
 			try:
@@ -112,7 +116,7 @@ if __name__ == '__main__':
 	if len(results) > 0:
 		print(table)
 
-		codes = Code().interpretations
+		codes = ExitCode().legend
 		print('\nCode:\tInterpretation:')
 		for key,val in codes.items():
 			print(f'\t{key}\t{val}')

@@ -8,7 +8,7 @@ base layout: &base
 
 expectation: &no-errors
   return code: 0
-  code: null
+  exit code: null
 
 
 tests:
@@ -122,4 +122,4 @@ tests:
     selection: '2'
     expectation:
       return code: 0
-      code: 2
+      exit code: 2

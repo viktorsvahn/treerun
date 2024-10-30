@@ -12,9 +12,9 @@ Tree:
 
 Modes:
   Mode 1: 
-    cmd: ./run.sh
+    cmd: &run ./run.sh
   Mode 2: 
-    cmd: ./run.sh
+    cmd: *run
     dir: test-{mod}
   Mode 3: 
     cmd: ./run.sh
@@ -27,3 +27,6 @@ Modes:
     dir: param11/prune_extend
   Shared output: 
     cmd: ./run.sh >> ../accumulated.out
+
+Handles:
+  some placeholder value: SOME_MODIFIER 

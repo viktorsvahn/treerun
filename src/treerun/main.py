@@ -162,7 +162,7 @@ parser.add_argument(
     version=version_help,
 )
 parser.add_argument(
-    '-m', '--modifier', type=str,
+    '-m', '--modifier', type=str, 
     help=modifier_help,
 )
 parser.add_argument(
@@ -189,14 +189,14 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-class Code:
+class ExitCode:
     """Legend:
       0:  could not locate the necessary files
       1:  use input caused program to close
     """
-    def __init__(self, code=None,loc=''):
-        self.code = code
-        self.interpretations = {
+    def __init__(self, exit_code=None,loc=''):
+        self.exit_code = exit_code
+        self.legend = {
             0:'A problem occurred during input-selection',
             1:'Missing YAML-input',
             2:'The necessary files could not be found',
@@ -204,16 +204,16 @@ class Code:
             4:'Missing mode-command',
             5:'Log-file does not exist',
         }
-        if self.code != None:
-            print(f'code: {code}')
-        
-        #sys.exit()
+        if self.exit_code != None:
+            print(f'exit code: {self.exit_code}')
+            #quit()
+            sys.exit()
 
         #with open(args.output, 'a') as sys.stdout:
         #    print(f'code: {code}')
 
-    def interpret(self, code):
-        return interpretations[code]
+    def interpret(self, exit_code):
+        return interpretations[exit_code]
 
 
 def whitespace(strings, tab_width=4, max_length=None):
@@ -299,7 +299,7 @@ def make_selection(description, options, select_all):
                 index_selection = input(description)
             except EOFError as e:
                 print(e)
-                Code(0)
+                ExitCode(0)
 
             # Evaluate selection, repeat attempt if criteria not met
             ## Single entry selections are simple index-slices of a list
@@ -422,7 +422,7 @@ def check_files(paths):
     if len(found) == 0:
         print('Could not locate the relevant directories.')
         print('\nPlease make sure that the appropriate directories exist and that all modifiers\nin the YAML input (if any) have been supplied.')
-        Code(2)
+        ExitCode(2)
 
     ## Some directories were not found, still continue?
     elif len(not_found) > 0:
@@ -437,7 +437,7 @@ def check_files(paths):
             if q not in ['y', 'yes']:
                 print('Closing.')
         except:
-            Code(0)
+            ExitCode(0)
 
     # All directories were found
     elif (len(found) == len(paths)) and (len(not_found) == 0):
@@ -471,20 +471,41 @@ def graft_paths(paths:list, graft_point:str) -> list:
 
 
 
-def run(mode, selected_levels, modifier, log_file):
-    mode, mode_dict = mode
+#def run(mode, selected_levels, modifier, log_file):
+def run(data:dict, modifier, log_file):
+    #levels = data['Tree']
+    #modes = data['Modes']
+
+    # Select levels and modes
+    selected_levels = level_select(data['Tree'], args.exclude)
+    mode, mode_dict = mode_select(data['Modes'], args.modifier)
+
+    #mode, mode_dict = mode
     successful, unsuccessful = [],[]
     cwd = os.getcwd()
     
     # Convert placeholders to variables
-    placeholder_map = dict(
-        mod=modifier,
-        mode=mode
-    )
+    ## Defined in input.yaml
+    if 'Handles' in data.keys():
+        placeholder_map = data['Handles']
+    elif 'Placeholders' in data.keys():
+        placeholder_map = data['Placeholders']
+    else:
+        ## Default is not in yaml
+        placeholder_map = dict(
+            mod=modifier,
+            mode=mode,
+        )
+
+    # Make sure that cli input overrides anything in config
+    if modifier is not None:
+        placeholder_map['mod'] = modifier
+
+    # Atempt conversion
     try:
-        mode_dict = convert_placeholders(mode_dict, placeholder_map)
+        mode_dict = convert_placeholders(mode_dict, placeholder_map)    
     except:
-        Code(3); sys.exit()
+        ExitCode(3)
 
     # Summarise and print selections.
     ## Merge special variables with choices, conditional or non-conditional
@@ -497,7 +518,7 @@ def run(mode, selected_levels, modifier, log_file):
         tmp['Modifier:'] = modifier
     tabulate(tmp|selected_levels)
 
-
+    # Get args if given as list in yaml
     try:
         cmd_args = ' '+' '.join(mode_dict['args'])
     except:
@@ -513,11 +534,8 @@ def run(mode, selected_levels, modifier, log_file):
         try:
             cmd = mode_dict['command']+cmd_args
         except:
-            Code(4)
+            ExitCode(4)
             raise KeyError('The current mode does not seem to have any associated command.')
-
-
-
 
     # Get sub-dir to run in, if speecified
     try:
@@ -527,7 +545,6 @@ def run(mode, selected_levels, modifier, log_file):
             run_dir = '/'+mode_dict['directory']
         except:
             run_dir = ''
-
 
     # Attempts pruning of paths if the specified run_dir has a lower level than 
     # the maximum
@@ -592,7 +609,7 @@ def run(mode, selected_levels, modifier, log_file):
                     print('Not found:')
                     tabulate({p:cmd for p in not_found}, max_length)
         except:
-            Code(5); sys.exit()
+            ExitCode(5)
 
 
 #if __name__ == '__main__':
@@ -612,19 +629,20 @@ def main():
     if os.path.isfile(input_path):
         with open(input_path, 'r') as f:
             data = yaml.safe_load(f)
-        levels = data['Tree']
-        modes = data['Modes']
+        #levels = data['Tree']
+        #modes = data['Modes']
     else:
-        Code(1)
+        ExitCode(1)
         raise FileNotFoundError('Please make sure there is a proper input file (YAML) in the root directory.')
 
     # Select levels
-    choices = level_select(levels, args.exclude)
+    #choices = level_select(levels, args.exclude)
 
     # Select modes and run
-    mode = mode_select(modes, args.modifier)
+    #mode = mode_select(modes, args.modifier)
     #quit()
-    run(mode, choices, args.modifier, log_file=args.output)
+    #run(mode, choices, args.modifier, log_file=args.output)
+    run(data, args.modifier, log_file=args.output)
 
 
 if __name__ == '__main__':
