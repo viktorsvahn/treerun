@@ -498,10 +498,10 @@ def run(data:dict, modifier, log_file):
         )
 
     # Make sure that cli input overrides anything in config
-    if modifier is not None:
+    if (modifier is not None) or (modifier != ''):
         placeholder_map['mod'] = modifier
-
-    # Atempt conversion
+    
+    # Attempt conversion
     try:
         mode_dict = convert_placeholders(mode_dict, placeholder_map)    
     except:
@@ -514,7 +514,7 @@ def run(data:dict, modifier, log_file):
     tmp = {
         'Mode:':mode,
     }
-    if modifier is not None:
+    if (modifier is not None) or (modifier != ''):
         tmp['Modifier:'] = modifier
     tabulate(tmp|selected_levels)
 
@@ -563,6 +563,9 @@ def run(data:dict, modifier, log_file):
     header(f'Submitting:')
     for path in found:
         # Attempt to run
+        if cwd[-1] == '/':
+            cwd = cwd[:-1]
+
         try:
             os.chdir(cwd+path)
             tabulate(
