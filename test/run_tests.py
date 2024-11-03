@@ -2,10 +2,11 @@
 
 import os
 import yaml
-from treerun.main import convert_placeholders, whitespace, ExitCode
 import subprocess
 from tabulate import tabulate
 
+from treerun import broadcast, YAMLutils
+import treerun.main as trm
 
 # template command:
 # echo -ne '\n\n\n1' | python3 ../src/treerun/main.py -i input.yaml -o "logs/$TESTLOG" >> "logs/$TESTOUT"
@@ -34,10 +35,11 @@ if __name__ == '__main__':
 	for i, (test, definition) in enumerate(conf['tests'].items()):
 		print(f"Testing: {test}\nDescription: {definition['desc']}")
 		# Map placeholders
-		placeholders = {
+		placeholder_map = {
 			'name':test,
 		}
-		definition = convert_placeholders(definition,placeholders)
+
+		definition = YAMLutils.convert_handles(definition, handle_map=placeholder_map)
 
 
 		# Output paths
@@ -116,7 +118,7 @@ if __name__ == '__main__':
 	if len(results) > 0:
 		print(table)
 
-		codes = ExitCode().legend
+		codes = trm.ExitCode().legend
 		print('\nCode:\tInterpretation:')
 		for key,val in codes.items():
 			print(f'\t{key}\t{val}')

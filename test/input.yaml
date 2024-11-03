@@ -27,6 +27,3 @@ Modes:
     dir: param11/prune_extend
   Shared output: 
     cmd: ./run.sh >> ../accumulated.out
-
-Handles:
-  some placeholder value: SOME_MODIFIER 
