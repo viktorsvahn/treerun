@@ -87,6 +87,7 @@ class Tree:
             ## Default if not in yaml
             placeholder_map = dict(
                 mod=self.modifier,
+                root=self.root_dir,
                 #mode=mode,
             )
 
