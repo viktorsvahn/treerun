@@ -14,7 +14,7 @@ import argparse
 from treerun import broadcast
 from treerun import dirutils
 from treerun import YAMLutils
-from treerun.parser import argument_parser
+from treerun.parser import argument_parser, example_tree
 
 args = argument_parser()
 
@@ -353,19 +353,12 @@ class Tree:
                 not_found
             )
 
-"""
-class Dummy:
-    def __init__(self,input_file=None,select_all=False,modifier=None,excluded=[], output='test.log'):
-        self.input_file = input_file
-        self.all = select_all
-        self.modifier = modifier
-        self.excluded = excluded
-        self.output = output
-"""
-
 
 def main():
-    #args = Dummy(input_file='list.yaml')
+    if args.example:
+        print(example_tree)
+        quit()
+
     tree = Tree(
         yaml_data=args.input,
         modifier=args.modifier,
