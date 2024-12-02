@@ -19,9 +19,9 @@ Modes:
   Mode 3: 
     cmd: ./run.sh
     dir: test-{mod}/x
-  Mode 4: 
-    cmd: *run
-    dir: test-{mod}/eval_system*
+  Mode 4 (run from arbitrary subdirs): 
+    cmd: cd eval_system*; ./run.sh
+    dir: test-{mod}
   Pruned mode: 
     cmd: ./run.sh
     dir: param11

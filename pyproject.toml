@@ -22,6 +22,9 @@ authors = [
 description = "CLI for running teriminal commands from all subdirectories in a tree structure."
 readme = "README.md"
 requires-python = ">=3.9"
+dependencies = [
+    'pyyaml',
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",

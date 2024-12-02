@@ -2,7 +2,7 @@ input: 'input.yaml'
 logdir: 'logs/'
 results: 'result.out'
 
-base layout: &base
+base layout: &base-logs
   stdout: '{name}.out'
   log: '{name}.log'
 
@@ -14,62 +14,71 @@ expectation: &no-errors
 tests:
   perm_111: 
     desc: 'Permutation: 1-1-1 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '1111'
     expectation:
       <<: *no-errors
   perm_121:
     desc: 'Permutation: 1-2-1 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '1211'
     expectation:
       <<: *no-errors
   perm_123:
     desc: 'Permutation: 1-2-3 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '1231'
     expectation:
       <<: *no-errors
   perm_211: 
     desc: 'Permutation: 2-1-1 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '2111'
     expectation:
       <<: *no-errors
   perm_222:
     desc: 'Permutation: 2-2-2 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '2221'
     expectation:
       <<: *no-errors
   perm_213:
     desc: 'Permutation: 2-1-3 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '2131'
     expectation:
       <<: *no-errors
   perm_a11:
     desc: 'Permutation: all-1-1 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '*111'
     expectation:
       <<: *no-errors
   perm_2a3:
     desc: 'Permutation: 2-all-3 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '2*31'
     expectation:
       <<: *no-errors
   perm_22a:
     desc: 'Permutation: 2-all-1 (Mode 1)'
-    <<: *base
+    <<: *base-logs
     selection: '22*1'
+    expectation:
+      <<: *no-errors
+
+  mode_4-run_arb_dir:
+    desc: 'Running the fourth mode, simply cd into subdir: eval_system* and execute ./run.sh'
+    <<: *base-logs
+    mod: 1
+    all: true
+    selection: '4y'
     expectation:
       <<: *no-errors
 
   mode_2-modifier-1:
     desc: 'Second mode with simple modifier=1 (Mode 2)'
-    <<: *base
+    <<: *base-logs
     mod: 1
     all: true
     selection: '2'
@@ -77,7 +86,7 @@ tests:
       <<: *no-errors
   mode_2-modifier-SOME_MODIFIER:
     desc: 'Second mode with simple modifier=SOME_MODIFIER (Mode 2)'
-    <<: *base
+    <<: *base-logs
     mod: 'SOME_MODIFIER'
     all: true
     selection: '2y'
@@ -85,7 +94,7 @@ tests:
       <<: *no-errors
   mode_3-modifier-1-x:
     desc: 'Second mode with modifier=1 and dir extension (Mode 3)'
-    <<: *base
+    <<: *base-logs
     mod: 1
     all: true
     selection: '3y'
@@ -94,30 +103,30 @@ tests:
 
   pruned_1up:
     desc: 'Pruned to -1 level (param11) (Mode 4)'
-    <<: *base
+    <<: *base-logs
     all: true
-    selection: '4'
+    selection: '5'
     expectation:
       <<: *no-errors
   grafted_1up-extend:
     desc: 'Pruned to -1 level (param11) and extended to new dir (prune_extend) (Mode 5)'
-    <<: *base
+    <<: *base-logs
     all: true
-    selection: '5'
+    selection: '6'
     expectation:
       <<: *no-errors
 
   shared_accumulated-out:
     desc: 'Shared output (accumulated.out) (Mode 6)'
-    <<: *base
+    <<: *base-logs
     all: true
-    selection: '5'
+    selection: '7'
     expectation:
       <<: *no-errors
 
   mode_2-missing-modifier:
     desc: 'Running mode 2 without a modifier'
-    <<: *base
+    <<: *base-logs
     all: true
     selection: '2'
     expectation:
