@@ -133,9 +133,13 @@ were not will be stored in a log file with the name
 given here
 """
 
+codes_help = """exit code legend
+"""
+
 example_help = """prints a possible tree structure and the contents of an
 associated input file
 """
+
 
 def argument_parser():
     parser = argparse.ArgumentParser(
@@ -167,6 +171,10 @@ def argument_parser():
     parser.add_argument(
         '-o', '--output', default=None,
         help=log_help,
+    )
+    parser.add_argument(
+        '--codes', action='store_true',
+        help=codes_help,
     )
     parser.add_argument(
         '--example', action='store_true',

@@ -359,6 +359,11 @@ def main():
     if args.example:
         print(example_tree)
         quit()
+    elif args.codes:
+        print('Code:   Description:')
+        for key,val in ExitCode.legend.items():
+            print(f'   {key}    {val}')
+        quit()
 
     tree = Tree(
         yaml_data=args.input,
