@@ -30,3 +30,5 @@ Modes:
     dir: param11/prune_extend
   Shared output: 
     cmd: ./run.sh >> ../accumulated.out
+  x:
+    cmd: echo ${System}
