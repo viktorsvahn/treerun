@@ -31,4 +31,5 @@ Modes:
   Shared output: 
     cmd: ./run.sh >> ../accumulated.out
   x:
-    cmd: echo ${System}
+    #dir: '{System}'
+    cmd: echo {System}

@@ -74,7 +74,6 @@ class Tree:
         if 'Root' in self.yaml_data: 
             self.root_dir = os.path.abspath(self.yaml_data['Root'])
         else: self.root_dir = os.getcwd()
-        #print(self.root_dir) # HERE IS A TEMPORARY PRINT STATEMENT
 
         # Convert placeholders to variables
         ## Defined in input.yaml
@@ -82,7 +81,6 @@ class Tree:
             placeholder_map = self.yaml_data['Handles']
         elif 'Placeholders' in self.yaml_data:
             placeholder_map = self.yaml_data['Placeholders']
-        
         else:
             ## Default if not in yaml
             placeholder_map = dict(
@@ -322,6 +320,12 @@ class Tree:
         # Attempt to submit all files that were found
         broadcast.header(f'Submitting:')
         for path in found:
+            # Convert possible 'level' placeholders in commands
+            dirs = path.split('/')[1:]
+            levels = list(self.tree.keys())
+            level_map = {k:v for k,v in zip(levels,dirs)}
+            cmd = YAMLutils.convert_handles(cmd, level_map)
+
             # Attempt to run
             try:
                 os.chdir(self.root_dir+path)
@@ -356,14 +360,18 @@ class Tree:
 
 
 def main():
+    # Example flag
     if args.example:
         print(example_tree)
         quit()
+
+    # Exit code flags
     elif args.codes:
         print('Code:   Description:')
         for key,val in ExitCode.legend.items():
             print(f'   {key}    {val}')
         quit()
+
 
     tree = Tree(
         yaml_data=args.input,
