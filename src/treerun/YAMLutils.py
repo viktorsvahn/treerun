@@ -19,36 +19,52 @@ def load_input(yaml_file:str) -> dict:
         yaml_data = yaml.safe_load(f)
     return yaml_data
 
-def convert_handles(dictionary:dict, handle_map:dict) -> dict:
-    """Converts placeholders/handles in a dictionary defined a handle map.
+def convert_handles(data:dict or str, handle_map:dict) -> dict:
+    """Converts placeholders/handles in a data defined a handle map.
 
     Placeholders in the YAML-file are defined as {arg} where 'arg' will be 
     replaced by its corresponding mapping defined by 'args'
 
     Keyword arguments:
-      dictionary:  dictionary subject to placeholder/handle conversion
-      handle_map:  dictionary with proper placeholder-variable maps, e.g,
+      data:  data subject to placeholder/handle conversion
+      handle_map:  data with proper placeholder-variable maps, e.g,
                    args = dict(arg1=value1, arg2=value2, ...)
     """
-    tmp = copy.deepcopy(dictionary)
+    if type(data) == str:
+        tmp = data.format(**handle_map)
 
-    # Attempt conversion based on type
-    for key,val in dictionary.items():
-        if type(val) == list:
-            for i,v in enumerate(val):
-                # Convert if subelement is string
-                if type(v) == str:
-                    tmp[key][i] = v.format(**handle_map)
+    else:
+        tmp = copy.deepcopy(data)
+        # Attempt conversion based on type
+        for key,val in data.items():
 
-        elif type(val) == dict:
-            for k,v in val.items():
-                # Convert if subelement is string
-                if type(v) == str:
-                    tmp[key][k] = v.format(**handle_map)
+            if type(val) == list:
+                for i,v in enumerate(val):
+                    # Convert if subelement is string
+                    if type(v) == str:
+                        #tmp[key][i] = v.format(**handle_map)
+                        try:
+                            tmp[key][i] = v.format(**handle_map)
+                        except:
+                            print(f'Unable to convert handles (in list)')
 
-        # Convert if subelement is string
-        elif type(val) == str:
-            tmp[key] = val.format(**handle_map)
+            elif type(val) == dict:
+                for k,v in val.items():
+                    # Convert if subelement is string
+                    if type(v) == str:
+                        #tmp[key][k] = v.format(**handle_map)
+                        try:
+                            tmp[key][k] = v.format(**handle_map)
+                        except:
+                            print(f'Unable to convert handles (in dict)')
+
+            # Convert if subelement is string
+            elif type(val) == str:
+                #tmp[key] = val.format(**handle_map)
+                try:
+                    tmp[key] = val.format(**handle_map)
+                except:
+                    print(f'Unable to convert handles (string)')
 
     return tmp
 
