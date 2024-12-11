@@ -325,6 +325,7 @@ class Tree:
             levels = list(self.tree.keys())
             level_map = {k:v for k,v in zip(levels,dirs)}
             cmd = YAMLutils.convert_handles(cmd, level_map)
+            print(cmd)
 
             # Attempt to run
             try:
