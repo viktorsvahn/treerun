@@ -31,7 +31,10 @@ def convert_handles(data:dict or str, handle_map:dict) -> dict:
                    args = dict(arg1=value1, arg2=value2, ...)
     """
     if type(data) == str:
-        tmp = data.format(**handle_map)
+        try:
+            tmp = data.format(**handle_map)
+        except:
+            tmp = data
 
     else:
         tmp = copy.deepcopy(data)
