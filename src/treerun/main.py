@@ -77,28 +77,24 @@ class Tree:
 
         # Convert placeholders to variables
         ## Default if not in yaml
-        placeholder_map = dict(
+        self.placeholder_map = dict(
             mod=self.modifier,
             root=self.root_dir,
         )
         ## Defined in input.yaml
         if 'Handles' in self.yaml_data:
-            placeholder_map = self.yaml_data['Handles'] | placeholder_map
+            self.placeholder_map = self.yaml_data['Handles'] | self.placeholder_map
         elif 'Placeholders' in self.yaml_data:
-            placeholder_map = self.yaml_data['Placeholders'] | placeholder_map
+            self.placeholder_map = self.yaml_data['Placeholders'] | self.placeholder_map
         
-        ## Filter any remaining handles (e.g. {root}) within handles/placeholders
-        placeholder_map = YAMLutils.convert_handles(placeholder_map, placeholder_map)
-
         # Make sure that cli input overrides anything in config
         if self.modifier is not None:
-            placeholder_map['mod'] = self.modifier
+            self.placeholder_map['mod'] = self.modifier
 
         # Define tree and mode options
         self.tree = self.yaml_data['Tree']
-        self.modes = YAMLutils.convert_handles(self.yaml_data['Modes'], placeholder_map)
+        self.modes = YAMLutils.convert_handles(self.yaml_data['Modes'], self.placeholder_map)
         self.successful, self.unsuccessful = [],[]
-
 
     def plant(self, arg):
         """Somehow generate a tree if no input has been given or if directories
@@ -321,12 +317,13 @@ class Tree:
         # Attempt to submit all files that were found
         broadcast.header(f'Submitting:')
         for path in found:
+            tmp_cmd = copy.deepcopy(cmd)
+
             # Convert possible 'level' placeholders in commands
             dirs = path.split('/')[1:]
             levels = list(self.tree.keys())
-            level_map = {k:v for k,v in zip(levels,dirs)}
-            cmd = YAMLutils.convert_handles(cmd, level_map)
-            print(cmd)
+            level_map = {k:v for k,v in zip(levels,dirs)} | self.placeholder_map
+            tmp_cmd = YAMLutils.convert_handles(tmp_cmd, level_map)
 
             # Attempt to run
             try:
@@ -334,10 +331,10 @@ class Tree:
                 broadcast.tabulate(
                     {
                         'Moving to:':path,
-                        'Running:':cmd,
+                        'Running:':tmp_cmd,
                     }
                 )
-                subprocess.call(cmd, shell=True)
+                subprocess.call(tmp_cmd, shell=True)
                 self.successful.append(path)
 
             # Log unsuccessful attempts
