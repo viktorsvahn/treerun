@@ -76,18 +76,19 @@ class Tree:
         else: self.root_dir = os.getcwd()
 
         # Convert placeholders to variables
+        ## Default if not in yaml
+        placeholder_map = dict(
+            mod=self.modifier,
+            root=self.root_dir,
+        )
         ## Defined in input.yaml
         if 'Handles' in self.yaml_data:
-            placeholder_map = self.yaml_data['Handles']
+            placeholder_map = self.yaml_data['Handles'] | placeholder_map
         elif 'Placeholders' in self.yaml_data:
-            placeholder_map = self.yaml_data['Placeholders']
-        else:
-            ## Default if not in yaml
-            placeholder_map = dict(
-                mod=self.modifier,
-                root=self.root_dir,
-                #mode=mode,
-            )
+            placeholder_map = self.yaml_data['Placeholders'] | placeholder_map
+        
+        ## Filter any remaining handles (e.g. {root}) within handles/placeholders
+        placeholder_map = YAMLutils.convert_handles(placeholder_map, placeholder_map)
 
         # Make sure that cli input overrides anything in config
         if self.modifier is not None:
