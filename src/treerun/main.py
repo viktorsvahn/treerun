@@ -96,11 +96,35 @@ class Tree:
         self.modes = YAMLutils.convert_handles(self.yaml_data['Modes'], self.placeholder_map)
         self.successful, self.unsuccessful = [],[]
 
-    def plant(self, arg):
-        """Somehow generate a tree if no input has been given or if directories
-        in input do not exist.
+    def plant(self):
+        """Checks if the directories listed in the input file exists. If not, 
+        allows the user to plant the missing parts of the tree.
         """
-        pass
+        paths = dirutils.get_paths(self.tree)
+        found, not_found = dirutils.check_files(paths, self.root_dir, plant_mode=True)
+
+        # Show not found dirs and decide if they should be created
+        broadcast.header('Planting tree:')
+        if len(not_found) > 0:
+            print('\nUnable to find the following directories:')
+            for f in not_found:
+                print(f)
+            
+            q = input('\nWould you like to create the missing directories (y/[n])? ').lower()
+            if q not in ['y', 'yes']:
+                print('Closing.')
+                sys.exit()
+            else:
+                # Planting tree
+                for path in not_found:
+                    try:
+                        subprocess.run(f'mkdir -p {self.root_dir+path}', shell=True)
+                        print(f'Created: {path}')
+                    except:
+                        print(f'Could not create: {path}')
+                print('Done!')
+        else:
+            print('Tree already exists.')
 
 
     def selection_prompt(self, description:str, options:dict or list, select_all:bool) -> list:
@@ -362,24 +386,34 @@ def main():
     # Example flag
     if args.example:
         print(example_tree)
-        quit()
+        #quit()
 
     # Exit code flags
     elif args.codes:
         print('Code:   Description:')
         for key,val in ExitCode.legend.items():
             print(f'   {key}    {val}')
-        quit()
+        #quit()
 
+    elif args.plant:
+        tree = Tree(
+            yaml_data=args.input,
+            modifier=args.modifier,
+            excluded=args.excluded,
+            select_all=True,
+            log_file=args.output,
+        )
+        tree.plant()
 
-    tree = Tree(
-        yaml_data=args.input,
-        modifier=args.modifier,
-        excluded=args.excluded,
-        select_all=args.all,
-        log_file=args.output,
-    )
-    tree.climb()
+    else:
+        tree = Tree(
+            yaml_data=args.input,
+            modifier=args.modifier,
+            excluded=args.excluded,
+            select_all=args.all,
+            log_file=args.output,
+        )
+        tree.climb()
 
 
 if __name__ == '__main__':

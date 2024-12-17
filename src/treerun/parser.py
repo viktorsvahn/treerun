@@ -111,8 +111,12 @@ to see an example tree structure with its associated input file.
 version_help = f'\
 treerun ver. {version("treerun")}'
 
-modifier_help = """modifiers are used to substitute {mod} in 
-the \'Modes\' block of the input YAML-file
+plant_help = """attempts to plant a tree as defined in the input YAML-
+file
+"""
+
+modifier_help = """modifiers are used to substitute {mod} in the \'Modes\' 
+block of the input YAML-file
 """
 
 input_help = """input file (YAML-format) that contains a \'Tree\'-block
@@ -141,6 +145,8 @@ associated input file
 """
 
 
+
+
 def argument_parser():
     parser = argparse.ArgumentParser(
         prog='trn',
@@ -153,11 +159,15 @@ def argument_parser():
         version=version_help,
     )
     parser.add_argument(
+        '--plant', action='store_true',
+        help=plant_help,
+    )
+    parser.add_argument(
         '-m', '--modifier', type=str, 
         help=modifier_help,
     )
     parser.add_argument(
-        '-i', '--input', default='input.yaml',
+        '-i', '--input', default='tree.yaml',
         help=input_help,
     )
     parser.add_argument(
@@ -180,4 +190,5 @@ def argument_parser():
         '--example', action='store_true',
         help=example_help,
     )
+    
     return parser.parse_args()
