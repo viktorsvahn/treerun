@@ -32,6 +32,10 @@ After having placed a file ('input.yaml', for example) containing the above defi
 ```
 trn --modifier 1 --config input.yaml --log test.log
 ```
+Directories listed in the input that do not already exist on disk can be created by passing the `--plant` flag as:
+```
+trn -i input.yaml --plant
+```
 
 The following is an example where 'dir1', 'subdir1', 'subsubdir1', and 'Mode 1' was selected:
 ```
