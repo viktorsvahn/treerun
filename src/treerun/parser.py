@@ -143,7 +143,7 @@ were not will be stored in a log file with the name
 given here
 """
 
-codes_help = """exit code legend
+codes_help = """legend for exit codes
 """
 
 example_help = """prints a possible tree structure and the contents of an
@@ -192,12 +192,12 @@ def argument_parser():
         version=version_help,
     )
     info.add_argument(
-        '--codes', action='store_true',
-        help=codes_help,
-    )
-    info.add_argument(
         '--example', action='store_true',
         help=example_help,
+    )
+    info.add_argument(
+        '--codes', action='store_true',
+        help=codes_help,
     )
     
     return parser.parse_args()
