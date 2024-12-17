@@ -101,8 +101,13 @@ Modes:
 """
 
 epilog = """Run:
+> trn --plant -i input.yaml
+to create a tree structure as defined in the input file.
+
+Run:
 > trn --example
-to see an example tree structure with its associated input file.
+to see an example tree structure along with what its associated input file 
+should look like.
 """
 
 
@@ -121,7 +126,8 @@ block of the input YAML-file
 
 input_help = """input file (YAML-format) that contains a \'Tree\'-block
 with the names of all directories in each level and a
-\'Modes\'-block that contains all commands
+\'Modes\'-block that contains all commands (defaults to
+tree.yaml in the working directory)
 """
 
 exclude_help = """the program will exclude all nodes corresponding to any 
@@ -154,25 +160,20 @@ def argument_parser():
         epilog=epilog,
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument(
-        '--version', action='version',
-        version=version_help,
+    info = parser.add_argument_group(
+        'info',
     )
     parser.add_argument(
-        '--plant', action='store_true',
+        '-p', '--plant', action='store_true',
         help=plant_help,
-    )
-    parser.add_argument(
-        '-m', '--modifier', type=str, 
-        help=modifier_help,
     )
     parser.add_argument(
         '-i', '--input', default='tree.yaml',
         help=input_help,
     )
     parser.add_argument(
-        '-e', '--excluded', nargs='+', default=[],
-        help=exclude_help,
+        '-m', '--modifier', type=str, 
+        help=modifier_help,
     )
     parser.add_argument(
         '-a', '--all', action='store_true',
@@ -183,10 +184,18 @@ def argument_parser():
         help=log_help,
     )
     parser.add_argument(
+        '-e', '--excluded', nargs='+', default=[],
+        help=exclude_help,
+    )
+    info.add_argument(
+        '--version', action='version',
+        version=version_help,
+    )
+    info.add_argument(
         '--codes', action='store_true',
         help=codes_help,
     )
-    parser.add_argument(
+    info.add_argument(
         '--example', action='store_true',
         help=example_help,
     )
