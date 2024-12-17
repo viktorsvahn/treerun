@@ -33,7 +33,7 @@ def graft_paths(paths:list, graft_point:str) -> list:
     return grafted_paths
 
 
-def check_files(paths:list, root_dir:str=None) -> tuple:
+def check_files(paths:list, root_dir:str=None, plant_mode=False) -> tuple:
     """Given a list of paths, returns the lists of the paths that does, and
     does not, exist on the drive.
 
@@ -49,34 +49,35 @@ def check_files(paths:list, root_dir:str=None) -> tuple:
         else:
             not_found.append(path)
 
-    # Make sure user wants to continue if missing files
-    broadcast.header(f'Checking directories:')
+    if plant_mode == False:
+        # Make sure user wants to continue if missing files
+        broadcast.header(f'Checking directories:')
 
-    ## None of the directories were found: exit
-    if len(found) == 0:
-        print('Could not locate the relevant directories.')
-        print('\nPlease make sure that the appropriate directories exist and that all modifiers')
-        print('in the YAML input (if any) have been supplied.')
-        trm.ExitCode(2)
+        ## None of the directories were found: exit
+        if len(found) == 0:
+            print('Could not locate the relevant directories.')
+            print('\nPlease make sure that the appropriate directories exist and that all modifiers')
+            print('in the YAML input (if any) have been supplied.')
+            trm.ExitCode(2)
 
-    ## Some directories were not found, still continue?
-    elif len(not_found) > 0:
-        print('Unable to locate the following directories:')
-        for file in not_found:
-            print(file)
+        ## Some directories were not found, still continue?
+        elif len(not_found) > 0:
+            print('Unable to locate the following directories:')
+            for file in not_found:
+                print(file)
 
-        try:
-            q = input('Do you still want to continue (y/[n])? ').lower()
-            if q not in ['y', 'yes']:
-                print('Closing.')
-                sys.exit()
-        except:
-            trm.ExitCode(0)
+            try:
+                q = input('Do you still want to continue (y/[n])? ').lower()
+                if q not in ['y', 'yes']:
+                    print('Closing.')
+                    sys.exit()
+            except:
+                trm.ExitCode(0)
 
-    # All directories were found
-    elif (len(found) == len(paths)) and (len(not_found) == 0):
-        print('All relevant directories exist.')
-        print('\nProceeding with submission attempt.')
+        # All directories were found
+        elif (len(found) == len(paths)) and (len(not_found) == 0):
+            print('All relevant directories exist.')
+            print('\nProceeding with submission attempt.')
 
     return (found, not_found)
 
